@@ -1,0 +1,9 @@
+{
+  "name": "ibm-backen-1009",
+  "type": "ibm-cos",
+  "region": "us-east",
+  "endpoint": "s3.us-east.cloud-object-storage.appdomain.cloud",
+  "bucketName": "test-abhi",
+  "security": "4f3a43ffa3ea439d245a3ca561b87b04b1ddf29aa565ecee",
+  "access": "671386ae7e2f492b90ea04778893d87c"
+}
