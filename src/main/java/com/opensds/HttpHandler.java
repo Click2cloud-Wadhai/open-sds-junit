@@ -201,7 +201,7 @@ public class HttpHandler {
             Gson gson = new Gson();
 
             //http://localhost:8088/v3/credentials?userId=558057c4256545bd8a307c37464003c9&type=ec2
-            String url = "http://" + System.getenv("HOST_IP") + ":8088/v3/credentials?userId=<userid>&type=ec2";
+            String url = "http://" + System.getenv("HOST_IP") + ":8089/v3/credentials?userId=<userid>&type=ec2";
             url = url.replaceAll("<userid>", userId);
 
             Request request = new Request.Builder()

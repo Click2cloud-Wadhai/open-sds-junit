@@ -9,10 +9,8 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="okhttp-4.3.0" level="project" />
     <orderEntry type="library" name="okio-2.4.3" level="project" />
-    <orderEntry type="library" name="annotations-13.0" level="project" />
     <orderEntry type="library" name="gson-2.8.6" level="project" />
     <orderEntry type="library" name="commons-lang3-3.9" level="project" />
-    <orderEntry type="library" name="jar_files" level="project" />
     <orderEntry type="module-library">
       <library name="JUnit4">
         <CLASSES>
@@ -39,6 +37,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="jar_files  (2)" level="project" />
+    <orderEntry type="library" name="3rdparty" level="project" />
+    <orderEntry type="library" name="kotlin" level="project" />
   </component>
 </module>

@@ -77,7 +77,7 @@ class AllTests {
         for (Type t : getTypesHolder().getTypes()) {
             List<File> listOfIInputsForType =
                     Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
-                            "C:/Users/puja.domke/IdeaProjects/osdsjunit/inputs/createbucket");
+                            "D:/SODA-TestProject/soda-junit/inputs/createbucket");
             Gson gson = new Gson();
             // add the backend specified in each file
             for (File file : listOfIInputsForType) {
@@ -283,7 +283,7 @@ class AllTests {
         for (Type t : getTypesHolder().getTypes()) {
             List<File> listOfIInputsForType =
                     Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
-                            "C:/Users/puja.domke/IdeaProjects/osdsjunit/inputs/createbucket");
+                            "D:/SODA-TestProject/soda-junit/inputs/createbucket");
             Gson gson = new Gson();
             // add the backend specified in each file
             for (File file : listOfIInputsForType) {
@@ -299,7 +299,7 @@ class AllTests {
                 // backend added, now create buckets
                 List<File> listOfIBucketInputs =
                         Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
-                                "C:/Users/puja.domke/IdeaProjects/osdsjunit/inputs/createbucket");
+                                "D:/SODA-TestProject/soda-junit/inputs/createbucket");
                 /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
                         getAuthTokenHolder().getToken().getProject().getId());*/
                 // create the bucket specified in each file
