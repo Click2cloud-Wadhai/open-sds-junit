@@ -41,6 +41,11 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class HttpHandler {
+    private static  String URL = null;
+
+    public HttpHandler() {
+         URL = "http://" + System.getenv("HOST_IP");
+    }
 
     private OkHttpClient client = new OkHttpClient();
 
@@ -314,13 +319,11 @@ public class HttpHandler {
             tokenHolder = gson.fromJson(responseBody, TokenHolder.class);
             tokenHolder.setResponseHeaderSubjectToken(response.header("X-Subject-Token"));
 
-
         } catch (Exception e) {
             e.printStackTrace();
         }
         return tokenHolder;
     }
-
 
     public ProjectsHolder getProjects(String x_auth_token, String userId) {
 
@@ -365,7 +368,6 @@ public class HttpHandler {
         return linksHolder;
     }
 
-
     public AuthTokenHolder getAuthToken(String x_auth_token) {
         main.java.com.opensds.jsonmodels.authtokensresponses.AuthTokenHolder tokenHolder = null;
         try {
@@ -407,19 +409,16 @@ public class HttpHandler {
 //                    .addHeader("X-Auth-Token", x_auth_token)
                     .build();
 
-
             Response response = client.newCall(request).execute();
             String responseBody = response.body().string();
             tokenHolder = new main.java.com.opensds.jsonmodels.authtokensresponses.AuthTokenHolder();
             tokenHolder = gson.fromJson(responseBody, main.java.com.opensds.jsonmodels.authtokensresponses.AuthTokenHolder.class);
             tokenHolder.setResponseHeaderSubjectToken(response.header("X-Subject-Token"));
-
         } catch (Exception e) {
             e.printStackTrace();
         }
         return tokenHolder;
     }
-
 
     public TypesHolder getTypes(String x_auth_token, String projId) {
         TypesHolder typesHolder = null;
@@ -428,7 +427,6 @@ public class HttpHandler {
             builder.connectTimeout(5, TimeUnit.MINUTES) // connect timeout
                     .writeTimeout(5, TimeUnit.MINUTES) // write timeout
                     .readTimeout(5, TimeUnit.MINUTES); // read timeout
-
 
             MediaType mediaType = MediaType.parse("application/json");
 
@@ -480,9 +478,9 @@ public class HttpHandler {
                     gson.toJson(inputHolder)
             );
 
-//            String url = "http://" + System.getenv("HOST_IP") + ":8088/v1/<projectid>/backends";
-            String url = "http://192.168.3.25:8089/v1/adminTenantId/backends";
-//            url = url.replaceAll("<projectid>", projId);
+             //String url = "http://" + System.getenv("HOST_IP") + ":8089/v1/adminTenantId/backends";
+              String url = URL + "/v1/<projectid>/backends";
+                     url = url.replaceAll("<projectid>", projId);
 
             Request request = new Request.Builder()
                     .url(url)
@@ -501,10 +499,8 @@ public class HttpHandler {
 //                    .addHeader("X-Auth-Token", x_auth_token)
                     .build();
 
-
             Response response = client.newCall(request).execute();
             code = response.code();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
