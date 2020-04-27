@@ -12,3 +12,5 @@
 
 # IntelliJ
 #out/
+# Ignore download floder files.
+inputs/download/
