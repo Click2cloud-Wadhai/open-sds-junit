@@ -2,7 +2,7 @@
 *.dex
 
 # Java class files
-*.class
+#*.class
 
 ### Intellij ###
 *.iml
@@ -11,4 +11,4 @@
 .idea/
 
 # IntelliJ
-out/
+#out/
