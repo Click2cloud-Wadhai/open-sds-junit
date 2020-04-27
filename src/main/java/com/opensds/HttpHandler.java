@@ -10,7 +10,6 @@ import main.java.com.opensds.jsonmodels.authtokensrequests.Token;
 import main.java.com.opensds.jsonmodels.authtokensresponses.AuthTokenHolder;
 import main.java.com.opensds.jsonmodels.inputs.addbackend.AddBackendInputHolder;
 import main.java.com.opensds.jsonmodels.inputs.createbucket.CreateBucketFileInput;
-import main.java.com.opensds.jsonmodels.inputs.createbucket.uploadobjectinputfile;
 import main.java.com.opensds.jsonmodels.logintokensrequests.*;
 import main.java.com.opensds.jsonmodels.projectsresponses.ProjectsHolder;
 import main.java.com.opensds.jsonmodels.responses.listbackends.ListBackendResponse;
@@ -22,12 +21,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -799,47 +798,23 @@ public class HttpHandler {
         return code;
     }
 
-   public int uploadobject(String x_auth_token, String bucketName, uploadobjectinputfile input) {
-      int code1 = -1;
+    public int uploadObject(String x_auth_token, String bucketName, String fileName, File mFilePath) {
+        int code = -1;
         try {
-        MediaType mediaType = MediaType.parse("application/json");
-
-        Gson gson = new Gson();
-        RequestBody body = RequestBody.create(
-                MediaType.parse("application/json; charset=utf-8"),
-                gson.toJson(input)
-        );
-
-//            String url = "http://" + System.getenv("HOST_IP") + ":8088/v1/<projectid>/backends";
-        String url = "192.168.3.25:8089/v1/s3/<bucketName>/Screenshot.jpg";
-            url = url.replaceAll("<bucketName>", bucketName);
-
-        Request request = new Request.Builder()
-                .url(url)
-                .put(body)
-                .addHeader("Content-Type", "application/json")
-                .addHeader("User-Agent", "PostmanRuntime/7.20.1")
-                .addHeader("Accept", "*/*")
-                .addHeader("Cache-Control", "no-cache")
-                .addHeader("Postman-Token", "d1461223-255f-4c72-a3bf-b7410ca5c387,e78d906f-6ffc-4cd0-a51b-3237edf146fa")
-//                    .addHeader("Host", System.getenv("HOST_IP") + ":8088")
-                .addHeader("Accept-Encoding", "gzip, deflate")
-                .addHeader("Content-Length", "274")
-                .addHeader("Connection", "keep-alive")
-                .addHeader("cache-control", "no-cache")
-                .addHeader("Connection", "keep-alive")
-//                    .addHeader("X-Auth-Token", x_auth_token)
+            MediaType MEDIA_TYPE = MediaType.parse("application/xml");
+            String url = URL + "/v1/s3/" + bucketName + "/" + fileName;
+            Request request = new Request.Builder()
+                    .url(url)
+                    .put(RequestBody.create(mFilePath, MEDIA_TYPE))
                 .build();
+            Response response = client.newCall(request).execute();
+            code = response.code();
 
-
-        Response response = client.newCall(request).execute();
-       // code1 = response.code1();
-
-    } catch (Exception e) {
-        e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return code;
     }
-        return code1;
-}
     //    public Response downloadobject(String x_auth_token, String bucketName) {
 //
 //

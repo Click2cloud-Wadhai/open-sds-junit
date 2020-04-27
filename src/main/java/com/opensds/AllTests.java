@@ -11,7 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.File;
+import java.io.*;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -132,64 +132,25 @@ class AllTests {
                 // backend added, now create buckets
                 List<File> listOfIBucketInputs =
                         Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
-                                "");
-                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
-                        getAuthTokenHolder().getToken().getProject().getId());*/
+                                Constant.CREATE_BUCKET_PATH);
                 // create the bucket specified in each file
                 for (File bucketFile : listOfIBucketInputs) {
                     String bucketContent = Utils.readFileContentsAsString(bucketFile);
                     assertNotNull(bucketContent);
-
-                    CreateBucketFileInput bfi = gson.fromJson(bucketContent, CreateBucketFileInput.class);
-
-                    // filename format is "bucket_<bucketname>.json", get the bucket name here
-                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                    String bucketName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
                             bucketFile.getName().indexOf("."));
-
-                    // now create buckets
-                    int cbCode = getHttpHandler().createBucket(null,
-                            bfi, bName, null, "adminTenantId");//signatureKey);
-                    System.out.println(cbCode);
-                    assertEquals(cbCode, 200);
-
-                    //delete bucket
-//                    int dbCode = getHttpHandler().deleteBucket(null,"adminTenantId"
-//                           , bName);//signatureKey);
-//                   System.out.println(dbCode);
-//                   assertEquals(dbCode, 200);
-//                    //upload object
-//                    File filep = new File("C:/Users/puja.domke/IdeaProjects/osdsjunit/Screenshot_1.png");
-//                    String absolutePath = filep.getAbsolutePath();
-//                    String filePath = absolutePath.
-//                            substring(0,absolutePath.lastIndexOf(File.separator));
-////                    for (Type t1 : getTypesHolder().getTypes()) {
-////                        List<File> listOfIInputsForType1 =
-////                                Utils.listFilesMatchingBeginsWithPatternInPath(t1.getName(),
-////                                        "C:/Users/puja.domke/IdeaProjects/osdsjunit/Screenshot_1.png");
-//                        Gson gson1 = new Gson();
-//                        // add the object specified in each file
-////                        for (File file1 : listOfIInputsForType1) {
-////                            String content1 = Utils.readFileContentsAsString(file1);
-////                            assertNotNull(content1);
-////                            for (File bucketFile1 : listOfIBucketInputs) {
-////                                String bucketContent1 = Utils.readFileContentsAsString(bucketFile1);
-////                                assertNotNull(bucketContent1);
-////
-////                                CreateBucketFileInput bfi1 = gson1.fromJson(bucketContent1, CreateBucketFileInput.class);
-////
-////                                // filename format is "bucket_<bucketname>.json", get the bucket name here
-////                                String bName1 = bucketFile1.getName().substring(bucketFile1.getName().indexOf("_") + 1,
-////                                        bucketFile1.getName().indexOf("."));
-////
-////                                uploadobjectinputfile inputHolder1 = gson1.fromJson(content, uploadobjectinputfile.class);
-////                                int code1 = getHttpHandler().uploadobject(null, bName1,inputHolder1);
-////                                assertEquals(code1, 200);
-////                            }
-//
-//                        }
-//                    }
-
-
+                    // Get object for upload.
+                    File fileRawData = new File(Constant.RAW_DATA_PATH);
+                    File[] files = fileRawData.listFiles();
+                    String mFileName = null;
+                    File mFilePath = null;
+                    for (File fileName : files) {
+                        mFileName = fileName.getName();
+                        mFilePath = fileName;
+                    }
+                    int cbCode = getHttpHandler().uploadObject(null,
+                            bucketName, mFileName, mFilePath);
+                    assertEquals("Upload object failed", cbCode, 200);
                 }
             }
         }
