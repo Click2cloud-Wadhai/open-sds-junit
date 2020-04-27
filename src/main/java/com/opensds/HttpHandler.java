@@ -15,7 +15,10 @@ import main.java.com.opensds.jsonmodels.projectsresponses.ProjectsHolder;
 import main.java.com.opensds.jsonmodels.responses.listbackends.ListBackendResponse;
 import main.java.com.opensds.jsonmodels.tokensresponses.TokenHolder;
 import main.java.com.opensds.jsonmodels.typesresponse.TypesHolder;
+import main.java.com.opensds.utils.Constant;
 import okhttp3.*;
+import okio.BufferedSink;
+import okio.Okio;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -815,40 +818,25 @@ public class HttpHandler {
         }
         return code;
     }
-    //    public Response downloadobject(String x_auth_token, String bucketName) {
-//
-//
-//        Response response = null;
-//
-//        ListBackendResponse lbr = new ListBackendResponse();
-//        try {
-//            MediaType mediaType = MediaType.parse("application/json");
-//
-//            String url = "http:///192.168.3.190:8089/v1/s3/+bucketName>/<objectKey>" ;
-//            url = url.replaceAll("<objectkey>", "alltest");
-//
-//            Request request = new Request.Builder()
-//                    .url(url)
-//                    .delete()
-//                    .addHeader("Content-Type", "application/json")
-//                    .addHeader("User-Agent", "PostmanRuntime/7.20.1")
-//                    .addHeader("Accept", "*/*")
-//                    .addHeader("Cache-Control", "no-cache")
-////                    .addHeader("Host", System.getenv("HOST_IP") + ":8088")
-//                    .addHeader("Accept-Encoding", "gzip, deflate")
-//                    .addHeader("Connection", "keep-alive")
-//                    .addHeader("cache-control", "no-cache")
-////                    .addHeader("X-Auth-Token", x_auth_token)
-//                    .build();
-//
-//
-//            response = client.newCall(request).execute();
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        return response;
-//    }
 
+    public int downloadObject(String x_auth_token, String bucketName, String fileName) {
+        int code = -1;
+        try {
+            String url = URL + "/v1/s3/" + bucketName + "/" + fileName;
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .addHeader("Content-Type", "application/xml")
+                    .build();
+            Response response = client.newCall(request).execute();
+            BufferedSink sink = Okio.buffer(Okio.sink(new File(Constant.DOWNLOAD_FILES_PATH, "download_image.jpg")));
+            sink.writeAll(response.body().source());
+            sink.close();
+            response.body().close();
+            code = response.code();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return code;
+    }
 }

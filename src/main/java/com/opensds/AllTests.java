@@ -117,23 +117,13 @@ class AllTests {
             List<File> listOfIInputsForType =
                     Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
                             Constant.CREATE_BUCKET_PATH);
-            Gson gson = new Gson();
-            // add the backend specified in each file
             for (File file : listOfIInputsForType) {
                 String content = Utils.readFileContentsAsString(file);
                 assertNotNull(content);
-
-                AddBackendInputHolder inputHolder = gson.fromJson(content, AddBackendInputHolder.class);
-                int code = getHttpHandler().addBackend(null,
-                        "adminTenantId",
-                        inputHolder);
-                assertEquals(code, 200);
-
-                // backend added, now create buckets
                 List<File> listOfIBucketInputs =
                         Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
                                 Constant.CREATE_BUCKET_PATH);
-                // create the bucket specified in each file
+                // Get bucket name.
                 for (File bucketFile : listOfIBucketInputs) {
                     String bucketContent = Utils.readFileContentsAsString(bucketFile);
                     assertNotNull(bucketContent);
@@ -150,7 +140,42 @@ class AllTests {
                     }
                     int cbCode = getHttpHandler().uploadObject(null,
                             bucketName, mFileName, mFilePath);
-                    assertEquals("Upload object failed", cbCode, 200);
+                    assertEquals("Uploaded object failed", cbCode, 200);
+                }
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("Downloading object in a folder")
+    public void testDownloadObject() {
+        // load input files for each type and create the backend
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+                // backend added, now create buckets
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+                    String bucketName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
+                    // Get object for upload.
+                    File fileRawData = new File(Constant.RAW_DATA_PATH);
+                    File[] files = fileRawData.listFiles();
+                    String mFileName = null;
+                    for (File fileName : files) {
+                        mFileName = fileName.getName();
+                    }
+                    int cbCode = getHttpHandler().downloadObject(null,
+                            bucketName, mFileName);
+                    assertEquals("Downloading failed", cbCode, 200);
                 }
             }
         }
