@@ -4,22 +4,17 @@ package main.java.com.opensds;
 import com.google.gson.Gson;
 import main.java.com.opensds.jsonmodels.inputs.addbackend.AddBackendInputHolder;
 import main.java.com.opensds.jsonmodels.inputs.createbucket.CreateBucketFileInput;
-import main.java.com.opensds.jsonmodels.responses.listbackends.Backend;
-import main.java.com.opensds.jsonmodels.responses.listbackends.ListBackendResponse;
 import main.java.com.opensds.jsonmodels.typesresponse.Type;
 import main.java.com.opensds.jsonmodels.typesresponse.TypesHolder;
 import main.java.com.opensds.utils.Constant;
-import okhttp3.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // how to get POJO from any response JSON, use this site
