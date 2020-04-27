@@ -15,7 +15,7 @@ import java.io.*;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 // how to get POJO from any response JSON, use this site
 // http://pojo.sodhanalibrary.com/
@@ -173,9 +173,23 @@ class AllTests {
                     for (File fileName : files) {
                         mFileName = fileName.getName();
                     }
+                    File filePath = new File(Constant.DOWNLOAD_FILES_PATH);
+                    File downloadedFile = null;
+                    if (filePath.exists()) {
+                        downloadedFile = new File(Constant.DOWNLOAD_FILES_PATH,"download_image.jpg");
+                        if (downloadedFile.exists()) {
+                            boolean isDownloadedFileDeleted = downloadedFile.delete();
+                            assertTrue(isDownloadedFileDeleted, "Image deleting is failed");
+                        } else {
+                            assertFalse(downloadedFile.exists());
+                        }
+                    } else {
+                        filePath.mkdirs();
+                    }
                     int cbCode = getHttpHandler().downloadObject(null,
                             bucketName, mFileName);
                     assertEquals("Downloading failed", cbCode, 200);
+                    assertTrue( downloadedFile.exists(), "Downloaded Image is not available");
                 }
             }
         }
