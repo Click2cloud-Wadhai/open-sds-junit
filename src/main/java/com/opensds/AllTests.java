@@ -174,9 +174,8 @@ class AllTests {
                         mFileName = fileName.getName();
                     }
                     File filePath = new File(Constant.DOWNLOAD_FILES_PATH);
-                    File downloadedFile = null;
+                    File downloadedFile = new File(Constant.DOWNLOAD_FILES_PATH,"download_image.jpg");
                     if (filePath.exists()) {
-                        downloadedFile = new File(Constant.DOWNLOAD_FILES_PATH,"download_image.jpg");
                         if (downloadedFile.exists()) {
                             boolean isDownloadedFileDeleted = downloadedFile.delete();
                             assertTrue(isDownloadedFileDeleted, "Image deleting is failed");
@@ -189,7 +188,7 @@ class AllTests {
                     int cbCode = getHttpHandler().downloadObject(null,
                             bucketName, mFileName);
                     assertEquals("Downloading failed", cbCode, 200);
-                    assertTrue( downloadedFile.exists(), "Downloaded Image is not available");
+                    assertTrue(downloadedFile.isFile(), "Downloaded Image is not available");
                 }
             }
         }
