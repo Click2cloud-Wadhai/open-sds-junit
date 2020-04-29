@@ -7,6 +7,11 @@ import main.java.com.opensds.jsonmodels.inputs.createbucket.CreateBucketFileInpu
 import main.java.com.opensds.jsonmodels.typesresponse.Type;
 import main.java.com.opensds.jsonmodels.typesresponse.TypesHolder;
 import main.java.com.opensds.utils.Constant;
+import okhttp3.Response;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.XML;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -110,7 +115,7 @@ class AllTests {
     }
 
     @Test
-    @DisplayName("Uploading object in a bucket on OPENSDS")
+    @DisplayName("Test uploading object in a bucket")
     public void testUploadObject() {
         // load input files for each type and create the backend
         for (Type t : getTypesHolder().getTypes()) {
@@ -141,13 +146,35 @@ class AllTests {
                     int cbCode = getHttpHandler().uploadObject(null,
                             bucketName, mFileName, mFilePath);
                     assertEquals("Uploaded object failed", cbCode, 200);
+
+                    //Verifying object is uploaded in bucket.
+                    Response listObjectResponse = getHttpHandler().getBucketObjects(bucketName);
+                    assertEquals("Get list of object failed", listObjectResponse.code(), 200);
+                    try {
+                        JSONObject jsonObject = XML.toJSONObject(listObjectResponse.body().string());
+                        JSONObject jsonObjectListBucket = jsonObject.getJSONObject("ListBucketResult");
+                        if (jsonObjectListBucket.has("Contents")) {
+                            if (jsonObjectListBucket.get("Contents") instanceof JSONArray){
+                                JSONArray objects = jsonObjectListBucket.getJSONArray("Contents");
+                                for (int i = 0; i < objects.length(); i++) {
+                                    assertEquals("Object is not uploaded", objects.getJSONObject(i).get("Key")
+                                            , mFileName);
+                                }
+                            } else {
+                                assertEquals("Object is not uploaded", jsonObjectListBucket
+                                        .getJSONObject("Contents").get("Key"), mFileName);
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
     }
 
     @Test
-    @DisplayName("Downloading object in a folder")
+    @DisplayName("Test downloading object in a folder")
     public void testDownloadObject() {
         // load input files for each type and create the backend
         for (Type t : getTypesHolder().getTypes()) {
@@ -194,101 +221,55 @@ class AllTests {
         }
     }
 
-//        for (Type t : getTypesHolder().getTypes()) {
-//            List<File> listOfIInputsForType =
-//                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
-//                            "C:/Users/puja.domke/IdeaProjects/osdsjunit/inputs/addbackend");
-//            Gson gson = new Gson();
-//            // add the backend specified in each file
-//            for (File file : listOfIInputsForType) {
-//                String content = Utils.readFileContentsAsString(file);
-//                assertNotNull(content);
-//
-//                AddBackendInputHolder inputHolder = gson.fromJson(content, AddBackendInputHolder.class);
-//                int code = getHttpHandler().addBackend(getAuthTokenHolder().getResponseHeaderSubjectToken(),
-//                        getAuthTokenHolder().getToken().getProject().getId(),
-//                        inputHolder);
-//                assertEquals(code, 200);
-//
-//                Response lbr = getHttpHandler().getBackends(getAuthTokenHolder().getResponseHeaderSubjectToken(),
-//                        getAuthTokenHolder().getToken().getProject().getId());
-//                assertEquals(lbr.code(), 200);
-//                try {
-//                    ListBackendResponse listBackendResponse = gson.fromJson(lbr.body().string(), ListBackendResponse.class);
-//                    boolean found = false;
-//                    String backendId = null;
-//                    // check the newly created backend, is listed in the output of listBackends
-//                    for (Backend b : listBackendResponse.getBackends()) {
-//                        if (b.getName().equals(inputHolder.getName())) {
-//                            backendId = b.getId();
-//                            found = true;
-//                            break;
-//
-//                        }}
-//                   assertTrue(found);
-    // now, delete the backend, to restore system to original state
-//                   Response delbr = getHttpHandler().deleteBackend(getAuthTokenHolder().getResponseHeaderSubjectToken(),
-//                           getAuthTokenHolder().getToken().getProject().getId(),
-//                            backendId);
-//                    assertEquals(delbr.code(), 200);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }}}}
+    @Test
+    @DisplayName("Test deleting bucket and object")
+    public void testDeleteBucketForAllTypes() {
+        // load input files for each type and create the backend
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            Gson gson = new Gson();
+            // add the backend specified in each file
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
 
-//    @Test
-//    @DisplayName("Create a bucket, then test delete bucket")
-//    public void testDeleteBucketForAllTypes() {
-//        // load input files for each type and create the backend
-//        for (Type t : getTypesHolder().getTypes()) {
-//            List<File> listOfIInputsForType =
-//                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
-//                            "C:/Users/puja.domke/IdeaProjects/osdsjunit/inputs/createbucket");
-//            Gson gson = new Gson();
-//            // add the backend specified in each file
-//            for (File file : listOfIInputsForType) {
-//                String content = Utils.readFileContentsAsString(file);
-//                assertNotNull(content);
-//
-//                AddBackendInputHolder inputHolder = gson.fromJson(content, AddBackendInputHolder.class);
-//                int code = getHttpHandler().addBackend(getAuthTokenHolder().getResponseHeaderSubjectToken(),
-//                        getAuthTokenHolder().getToken().getProject().getId(),
-//                        inputHolder);
-//                assertEquals(code, 200);
-//
-//                // backend added, now create buckets
-//                List<File> listOfIBucketInputs =
-//                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
-//                                "C:/Users/puja.domke/IdeaProjects/osdsjunit/inputs/deletebucket");
-//                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
-//                        getAuthTokenHolder().getToken().getProject().getId());*/
-//                // create the bucket specified in each file
-//                for (File bucketFile : listOfIBucketInputs) {
-//                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
-//                    assertNotNull(bucketContent);
-//
-//                    CreateBucketFileInput bfi = gson.fromJson(bucketContent, CreateBucketFileInput.class);
-//
-//                    // filename format is "bucket_<bucketname>.json", get the bucket name here
-//                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
-//                            bucketFile.getName().indexOf("."));
-//
-//                    // now create buckets
-//                    int cbCode = getHttpHandler().createBucket(getAuthTokenHolder().getResponseHeaderSubjectToken(),
-//                            bfi, bName, null, getAuthTokenHolder().getToken().getProject().getId());//signatureKey);
-//                    System.out.println(cbCode);
-//                    assertEquals(cbCode, 200);
-//
-//                    // now delete the bucket
-//                    int dbCode = getHttpHandler().deleteBucket(getAuthTokenHolder().getResponseHeaderSubjectToken(),
-//                            getAuthTokenHolder().getToken().getProject().getId(), bName);//signatureKey);
-//                    System.out.println(cbCode);
-//                    assertEquals(cbCode, 200);
-//                }
-//            }
-//        }
-//
-//    }}
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
+                        getAuthTokenHolder().getToken().getProject().getId());*/
+                // create the bucket specified in each file
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
 
+                    // filename format is "bucket_<bucketname>.json", get the bucket name here
+                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
+
+                    // Verifying Bucket not empty
+                    int responseCode = getHttpHandler().deleteBucketNotEmpty(null,
+                            "adminTenantId", bName);//signatureKey);
+                    System.out.println("Verifying Bucket not empty: "+responseCode);
+                    assertEquals(responseCode, 409);
+
+                    // now delete the object
+                    int code = getHttpHandler().deleteObject(null,
+                            "adminTenantId", bName, "Screenshot_1.jpg");
+                    System.out.println("Verifying object is deleted: "+code);
+                    assertEquals(code, 204);
+
+                    // now delete the bucket
+                    int dbCode = getHttpHandler().deleteBucket(null,
+                            "adminTenantId", bName);//signatureKey);
+                    System.out.println("Verifying bucket is deleted: "+dbCode);
+                    assertEquals(dbCode, 200);
+                }
+            }
+        }
+    }
 }
 
 

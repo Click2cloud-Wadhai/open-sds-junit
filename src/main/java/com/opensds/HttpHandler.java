@@ -2,6 +2,7 @@ package main.java.com.opensds;
 
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import main.java.com.opensds.jsonmodels.akskresponses.AKSKHolder;
 import main.java.com.opensds.jsonmodels.akskresponses.SignatureKey;
 import main.java.com.opensds.jsonmodels.authtokensrequests.Project;
@@ -16,9 +17,13 @@ import main.java.com.opensds.jsonmodels.responses.listbackends.ListBackendRespon
 import main.java.com.opensds.jsonmodels.tokensresponses.TokenHolder;
 import main.java.com.opensds.jsonmodels.typesresponse.TypesHolder;
 import main.java.com.opensds.utils.Constant;
+import main.java.com.opensds.utils.ConstantUrl;
 import okhttp3.*;
 import okio.BufferedSink;
 import okio.Okio;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.XML;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -40,15 +45,10 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class HttpHandler {
-    private static  String URL = null;
-
-    public HttpHandler() {
-         URL = "http://" + System.getenv("HOST_IP");
-    }
-
     private OkHttpClient client = new OkHttpClient();
 
     private Map<String, String> getParamsMapFromQuery(String rawQuery) {
@@ -469,21 +469,14 @@ public class HttpHandler {
 
 
     public int addBackend(String x_auth_token, String projId, AddBackendInputHolder inputHolder) {
-
         int code = -1;
         try {
-            MediaType mediaType = MediaType.parse("application/json");
-
             Gson gson = new Gson();
             RequestBody body = RequestBody.create(
                     MediaType.parse("application/json; charset=utf-8"),
                     gson.toJson(inputHolder)
             );
-
-             //String url = "http://" + System.getenv("HOST_IP") + ":8089/v1/adminTenantId/backends";
-              String url = URL + "/v1/<projectid>/backends";
-                     url = url.replaceAll("<projectid>", projId);
-
+            String url = ConstantUrl.getInstance().getAddBackendUrl(projId);
             Request request = new Request.Builder()
                     .url(url)
                     .post(body)
@@ -584,7 +577,6 @@ public class HttpHandler {
 
     public int createBucket(String x_auth_token, CreateBucketFileInput input, String bucketName,
                             SignatureKey signatureKey, String projId) {
-
         int code = -1;
         try {
             MediaType mediaType = MediaType.parse("application/json");
@@ -595,9 +587,7 @@ public class HttpHandler {
                     input.getXmlPayload()
             );
 
-
-            // http://localhost:8088/v1/s3/b123
-            String url = "http:///192.168.3.25:8089/v1/s3/" + bucketName;
+            String url = ConstantUrl.getInstance().getCreateBucketUrl(bucketName);
 
             // add AK/SK
 
@@ -664,10 +654,7 @@ public class HttpHandler {
         ListBackendResponse lbr = new ListBackendResponse();
         try {
             MediaType mediaType = MediaType.parse("application/json");
-
-            //http://localhost:8088/v1/s3
-//            String url = "http://" + System.getenv("HOST_IP") + ":8088/v1/s3";
-            String url = "http://192.168.3.25:8089/v1/s3";
+            String url = ConstantUrl.getInstance().getListBucketUrl();
             Request request = new Request.Builder()
                     .url(url)
                     .get()
@@ -688,6 +675,21 @@ public class HttpHandler {
             e.printStackTrace();
         }
 
+        return response;
+    }
+
+    public Response getBucketObjects(String bucketName) {
+        Response response = null;
+        try {
+            String url = ConstantUrl.getInstance().getListOfObjectFromBucketUrl(bucketName);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .build();
+            response = client.newCall(request).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return response;
     }
 
@@ -756,48 +758,77 @@ public class HttpHandler {
         return found;
     }
 
-
-    public int deleteBucket(String x_auth_token, String projId, String bucketName) {
-
-        Response response = null;
+    public int deleteBucketNotEmpty(String x_auth_token, String projId, String bucketName) {
         int code = -1;
-
-        ListBackendResponse lbr = new ListBackendResponse();
         try {
-            MediaType mediaType = MediaType.parse("application/json");
-
-        //    String url = "http://" + System.getenv("HOST_IP") + ":8088/v1/s3/" + bucketName;
-            String url = "http://192.168.3.25:8089/v1/s3" +bucketName;
-            //url = url.replaceAll("<projectid>", projId);
-
+            String url = ConstantUrl.getInstance().getDeleteBucketUrl(bucketName);
             Request request = new Request.Builder()
                     .url(url)
                     .delete()
-                    //.addHeader("Content-Type", "application/json")
-                    .addHeader("User-Agent", "PostmanRuntime/7.20.1")
-                    .addHeader("Accept", "*/*")
-                    .addHeader("Cache-Control", "no-cache")
-//                    .addHeader("Host", System.getenv("HOST_IP") + ":8088")
-                    .addHeader("Accept-Encoding", "gzip, deflate")
-                    .addHeader("Connection", "keep-alive")
-                    .addHeader("cache-control", "no-cache")
-//                    .addHeader("X-Auth-Token", x_auth_token)
+                    .addHeader("Content-Type", "application/xml")
                     .build();
-
-
-            response = client.newCall(request).execute();
-
+            Response response  = client.newCall(request).execute();
             code = response.code();
-            assertEquals(code, 200);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return code;
+    }
+
+    public int deleteBucket(String x_auth_token, String projId, String bucketName) {
+        int code = -1;
+        try {
+            String url = ConstantUrl.getInstance().getDeleteBucketUrl(bucketName);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .delete()
+                    .addHeader("Content-Type", "application/xml")
+                    .build();
+            Response response  = client.newCall(request).execute();
+            code = response.code();
 
             Response listBucketResponse = getBuckets(x_auth_token, projId);
             boolean bucketFound = doesListBucketResponseContainBucketByName(listBucketResponse.body().string(), bucketName);
             assertFalse(bucketFound);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return code;
+    }
 
+    public int deleteObject(String x_auth_token, String projId, String bucketName, String objectName) {
+        int code = -1;
+        try {
+            String url = ConstantUrl.getInstance().getDeleteObjectUrl(bucketName, objectName);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .delete()
+                    .addHeader("Content-Type", "application/xml")
+                    .build();
+
+            Response response  = client.newCall(request).execute();
+            code = response.code();
+
+            Response listObjectResponse = getBucketObjects(bucketName);
+            assertEquals("Get list of object failed", listObjectResponse.code(), 200);
+            JSONObject jsonObject = XML.toJSONObject(listObjectResponse.body().string());
+            JSONObject jsonObjectListBucket = jsonObject.getJSONObject("ListBucketResult");
+            if (jsonObjectListBucket.has("Contents")) {
+                if (jsonObjectListBucket.get("Contents") instanceof JSONArray){
+                    JSONArray objects = jsonObjectListBucket.getJSONArray("Contents");
+                    for (int i = 0; i < objects.length(); i++) {
+                        assertNotEquals(objects.getJSONObject(i).get("Key").equals(objectName),"Object is equal");
+                    }
+                } else {
+                        assertNotEquals(jsonObjectListBucket.getJSONObject("Contents").get("Key").equals(objectName),
+                            "Object is equal");
+                }
+            } else {
+                assertFalse(jsonObjectListBucket.has("Contents"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return code;
     }
 
@@ -805,7 +836,7 @@ public class HttpHandler {
         int code = -1;
         try {
             MediaType MEDIA_TYPE = MediaType.parse("application/xml");
-            String url = URL + "/v1/s3/" + bucketName + "/" + fileName;
+            String url = ConstantUrl.getInstance().getUploadObjectUrl(bucketName, fileName);
             Request request = new Request.Builder()
                     .url(url)
                     .put(RequestBody.create(mFilePath, MEDIA_TYPE))
@@ -822,7 +853,7 @@ public class HttpHandler {
     public int downloadObject(String x_auth_token, String bucketName, String fileName) {
         int code = -1;
         try {
-            String url = URL + "/v1/s3/" + bucketName + "/" + fileName;
+            String url = ConstantUrl.getInstance().getDownloadObjectUrl(bucketName, fileName);
             Request request = new Request.Builder()
                     .url(url)
                     .get()
