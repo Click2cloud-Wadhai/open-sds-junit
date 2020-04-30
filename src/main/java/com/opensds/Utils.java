@@ -1,5 +1,7 @@
 package main.java.com.opensds;
 
+import org.junit.jupiter.api.Assertions;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -12,6 +14,7 @@ public class Utils {
         List<File> retFileList = new ArrayList<>();
         try {
             File dir = new File(path);
+            Assertions.assertTrue(dir.isDirectory(),"Path is invalid: "+path);
             File[] files = dir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {

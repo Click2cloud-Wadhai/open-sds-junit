@@ -25,6 +25,35 @@ public class ConstantUrl {
     }
 
     /**
+     * Get Backend List
+     *
+     * @param adminTenantId admin tenant id.
+     */
+    public String getBackendsUrl(String adminTenantId) {
+        return URL +"/v1/"+adminTenantId+"/backends";
+    }
+
+    /**
+     * Get Backend
+     *
+     * @param adminTenantId admin tenant id.
+     * @param id admin tenant id.
+     */
+    public String getBackendUrl(String adminTenantId, String id) {
+        return URL +"/v1/"+adminTenantId+"/backends/"+id;
+    }
+
+    /**
+     * Delete Backend
+     *
+     * @param adminTenantId admin tenant id.
+     * @param id admin tenant id.
+     */
+    public String getDeleteBackendUrl(String adminTenantId, String id) {
+        return URL +"/v1/"+adminTenantId+"/backends/"+id;
+    }
+
+    /**
      * Create Bucket
      *
      * @param bucketName bucket name.
@@ -81,6 +110,8 @@ public class ConstantUrl {
 
     /**
      * Get list of object of a bucket
+     *
+     * @param bucketName bucket name
      */
     public String getListOfObjectFromBucketUrl(String bucketName) {
         return URL +"/v1/s3/"+bucketName;
