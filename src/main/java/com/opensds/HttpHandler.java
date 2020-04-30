@@ -502,78 +502,56 @@ public class HttpHandler {
         return code;
     }
 
-    public Response getBackends(String x_auth_token, String projId) {
-
-        Response response = null;
-
-        ListBackendResponse lbr = new ListBackendResponse();
+    public int getDeleteBackend(String x_auth_token, String projId, String id) {
+        int code = -1;
         try {
-            MediaType mediaType = MediaType.parse("application/json");
-
-//            String url = "http://" + System.getenv("HOST_IP") + ":8088/v1/<projectid>/backends";
-            String url = "http://192.168.3.25:8089/v1/adminTenantId/backends";
-//            url = url.replaceAll("<projectid>", projId);
-
-            Request request = new Request.Builder()
-                    .url(url)
-                    .get()
-                    .addHeader("Content-Type", "application/json")
-                    .addHeader("User-Agent", "PostmanRuntime/7.20.1")
-                    .addHeader("Accept", "*/*")
-                    .addHeader("Cache-Control", "no-cache")
-//                    .addHeader("Host", System.getenv("HOST_IP") + ":8088")
-                    .addHeader("Accept-Encoding", "gzip, deflate")
-                    .addHeader("Connection", "keep-alive")
-                    .addHeader("cache-control", "no-cache")
-//                    .addHeader("X-Auth-Token", x_auth_token)
-                    .build();
-
-
-            response = client.newCall(request).execute();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return response;
-    }
-
-
-    public Response deleteBackend(String x_auth_token, String projId, String backendId) {
-
-        Response response = null;
-
-        ListBackendResponse lbr = new ListBackendResponse();
-        try {
-            MediaType mediaType = MediaType.parse("application/json");
-
-            String url = "http:///192.168.3.25:8089/v1/<projectid>/backends/" + backendId;
-            url = url.replaceAll("<projectid>", "adminTenantId");
-
+            String url = ConstantUrl.getInstance().getDeleteBackendUrl(projId, id);
             Request request = new Request.Builder()
                     .url(url)
                     .delete()
                     .addHeader("Content-Type", "application/json")
-                    .addHeader("User-Agent", "PostmanRuntime/7.20.1")
-                    .addHeader("Accept", "*/*")
-                    .addHeader("Cache-Control", "no-cache")
-//                    .addHeader("Host", System.getenv("HOST_IP") + ":8088")
-                    .addHeader("Accept-Encoding", "gzip, deflate")
-                    .addHeader("Connection", "keep-alive")
-                    .addHeader("cache-control", "no-cache")
-//                    .addHeader("X-Auth-Token", x_auth_token)
                     .build();
-
-
-            response = client.newCall(request).execute();
-
+            Response response  = client.newCall(request).execute();
+            code = response.code();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return code;
+    }
 
+    public Response getBackend(String x_auth_token, String projId, String id) {
+        Response response = null;
+        try {
+            String url = ConstantUrl.getInstance().getBackendUrl(projId, id);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .addHeader("Content-Type", "application/json")
+//                  .addHeader("X-Auth-Token", x_auth_token)
+                    .build();
+            response = client.newCall(request).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return response;
     }
 
+    public Response getBackends(String x_auth_token, String projId) {
+        Response response = null;
+        try {
+            String url = ConstantUrl.getInstance().getBackendsUrl(projId);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .addHeader("Content-Type", "application/json")
+//                  .addHeader("X-Auth-Token", x_auth_token)
+                    .build();
+            response = client.newCall(request).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
 
     public int createBucket(String x_auth_token, CreateBucketFileInput input, String bucketName,
                             SignatureKey signatureKey, String projId) {
@@ -635,11 +613,6 @@ public class HttpHandler {
             Response response = client.newCall(request).execute();
             code = response.code();
             System.out.println(response.body().string());
-
-            Response listBucketResponse = getBuckets(x_auth_token, projId);
-            boolean bucketFound = doesListBucketResponseContainBucketByName(listBucketResponse.body().string(), bucketName);
-            assertTrue(bucketFound);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -693,7 +666,7 @@ public class HttpHandler {
         return response;
     }
 
-    private boolean doesListBucketResponseContainBucketByName(String xmlResponse, String bucketName) {
+    public boolean doesListBucketResponseContainBucketByName(String xmlResponse, String bucketName) {
 
         JAXBContext context = null;
         boolean found = false;
@@ -843,7 +816,7 @@ public class HttpHandler {
                 .build();
             Response response = client.newCall(request).execute();
             code = response.code();
-
+          System.out.println(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
         }
