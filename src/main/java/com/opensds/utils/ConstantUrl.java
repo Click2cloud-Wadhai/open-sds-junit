@@ -16,6 +16,15 @@ public class ConstantUrl {
     }
 
     /**
+     * Get Types
+     *
+     * @param adminTenantId admin tenant id.
+     */
+    public String getTypesUrl(String adminTenantId) {
+        return URL +"/v1/"+adminTenantId+"/types";
+    }
+
+    /**
      * Add Backend
      *
      * @param adminTenantId admin tenant id.

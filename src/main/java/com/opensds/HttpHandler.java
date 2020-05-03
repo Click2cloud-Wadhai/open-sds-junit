@@ -434,8 +434,7 @@ public class HttpHandler {
 
             Gson gson = new Gson();
 
-//            String url = "http://" + System.getenv("HOST_IP") + ":8088/v1/<projectid>/types";
-            String url = "http://192.168.3.25:8089/v1/adminTenantId/types";
+            String url = ConstantUrl.getInstance().getTypesUrl(projId);
 
             url = url.replaceAll("<projectid>", projId);
 
