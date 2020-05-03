@@ -1,8 +1,11 @@
 
-package main.java.com.opensds;
+package main.java.com.opensds.tests;
 
 import com.google.gson.Gson;
 import com.sun.xml.bind.v2.runtime.reflect.opt.Const;
+import main.java.com.opensds.HttpHandler;
+import main.java.com.opensds.TestResultHTMLPrinter;
+import main.java.com.opensds.Utils;
 import main.java.com.opensds.jsonmodels.inputs.addbackend.AddBackendInputHolder;
 import main.java.com.opensds.jsonmodels.inputs.addbackend.Backends;
 import main.java.com.opensds.jsonmodels.inputs.addbackend.BackendsInputHolder;
