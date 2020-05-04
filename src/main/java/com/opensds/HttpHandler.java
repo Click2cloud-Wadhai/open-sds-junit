@@ -512,6 +512,7 @@ public class HttpHandler {
                     .build();
             Response response  = client.newCall(request).execute();
             code = response.code();
+            System.out.println(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -780,24 +781,6 @@ public class HttpHandler {
 
             Response response  = client.newCall(request).execute();
             code = response.code();
-
-            Response listObjectResponse = getBucketObjects(bucketName);
-            assertEquals("Get list of object failed", listObjectResponse.code(), 200);
-            JSONObject jsonObject = XML.toJSONObject(listObjectResponse.body().string());
-            JSONObject jsonObjectListBucket = jsonObject.getJSONObject("ListBucketResult");
-            if (jsonObjectListBucket.has("Contents")) {
-                if (jsonObjectListBucket.get("Contents") instanceof JSONArray){
-                    JSONArray objects = jsonObjectListBucket.getJSONArray("Contents");
-                    for (int i = 0; i < objects.length(); i++) {
-                        assertNotEquals(objects.getJSONObject(i).get("Key").equals(objectName),"Object is equal");
-                    }
-                } else {
-                        assertNotEquals(jsonObjectListBucket.getJSONObject("Contents").get("Key").equals(objectName),
-                            "Object is equal");
-                }
-            } else {
-                assertFalse(jsonObjectListBucket.has("Contents"));
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }

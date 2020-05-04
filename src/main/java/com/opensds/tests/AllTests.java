@@ -2,7 +2,6 @@
 package main.java.com.opensds.tests;
 
 import com.google.gson.Gson;
-import com.sun.xml.bind.v2.runtime.reflect.opt.Const;
 import main.java.com.opensds.HttpHandler;
 import main.java.com.opensds.TestResultHTMLPrinter;
 import main.java.com.opensds.Utils;
@@ -18,13 +17,11 @@ import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 // http://pojo.sodhanalibrary.com/
 
 @ExtendWith(TestResultHTMLPrinter.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AllTests {
     //
 //    public static AuthTokenHolder getAuthTokenHolder() {
@@ -108,7 +106,6 @@ class AllTests {
                             bucketFile.getName().indexOf("."));
 
                     // now create buckets
-                    // TODO Bugs: Re-create same bucket return 500 response code.
                     int cbCode = getHttpHandler().createBucket(null,
                             bfi, bName, null, "adminTenantId");//signatureKey);
                     System.out.println(cbCode);
@@ -492,8 +489,8 @@ class AllTests {
 
     @Test
     @Order(13)
-    @DisplayName("Test verifying get backend failed")
-    public void testBackendFailed() {
+    @DisplayName("Test verifying non exist backend")
+    public void testNonExistBackend() {
         Response responseBackend = getHttpHandler().getBackend(null,
                 "adminTenantId", "reuiu5475");
         assertEquals("Get backend failed:Response code not matched: ", responseBackend.code(), 400);
@@ -552,10 +549,10 @@ class AllTests {
         }
     }
 
-    //@Test
-    @Order(12)
-    @DisplayName("Test deleting bucket and object")
-    public void testDeleteBucketAndObject() {
+    @Test
+    @Order(15)
+    @DisplayName("Test deleting non empty bucket")
+    public void testDeleteNonEmptyBucket() {
         // load input files for each type and create the backend
         for (Type t : getTypesHolder().getTypes()) {
             List<File> listOfIInputsForType =
@@ -585,12 +582,194 @@ class AllTests {
                             "adminTenantId", bName);//signatureKey);
                     System.out.println("Verifying Bucket not empty: "+responseCode);
                     assertEquals(responseCode, 409);
+                }
+            }
+        }
+    }
+
+    @Test
+    @Order(16)
+    @DisplayName("Test deleting non exist bucket")
+    public void testDeleteNonExistBucket() {
+        // load input files for each type and create the backend
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            // add the backend specified in each file
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
+                        getAuthTokenHolder().getToken().getProject().getId());*/
+                // create the bucket specified in each file
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+
+                    // filename format is "bucket_<bucketname>.json", get the bucket name here
+                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
+
+                    // now delete non exist bucket
+                    int dbCode = getHttpHandler().deleteBucket(null,
+                            "adminTenantId", "tdggfv");//signatureKey);
+                    assertEquals("Delete non exist bucket: Response code not matched: ",dbCode, 404);
+                }
+            }
+        }
+    }
+
+    @Test
+    @Order(17)
+    @DisplayName("Test deleting non exist object")
+    public void testDeleteNonExistObject() throws IOException {
+        // load input files for each type and create the backend
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            // add the backend specified in each file
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
+                        getAuthTokenHolder().getToken().getProject().getId());*/
+                // create the bucket specified in each file
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+
+                    // filename format is "bucket_<bucketname>.json", get the bucket name here
+                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
+
+                    // now delete the object
+                    int code = getHttpHandler().deleteObject(null,
+                            "adminTenantId", bName, "hjdhj");
+                    System.out.println("Verifying object is deleted: "+code);
+                    assertEquals("Delete non exist object: Response code not matched: ",code, 404);
+                    Response listObjectResponse = getHttpHandler().getBucketObjects(bName);
+                    assertEquals("Get list of object failed", listObjectResponse.code(), 200);
+                    JSONObject jsonObject = XML.toJSONObject(listObjectResponse.body().string());
+                    JSONObject jsonObjectListBucket = jsonObject.getJSONObject("ListBucketResult");
+                    if (jsonObjectListBucket.has("Contents")) {
+                        if (jsonObjectListBucket.get("Contents") instanceof JSONArray){
+                            JSONArray objects = jsonObjectListBucket.getJSONArray("Contents");
+                            for (int i = 0; i < objects.length(); i++) {
+                                assertNotEquals(objects.getJSONObject(i).get("Key").equals(bName),"Object is equal");
+                            }
+                        } else {
+                            assertNotEquals(jsonObjectListBucket.getJSONObject("Contents").get("Key").equals(bName),
+                                    "Object is equal");
+                        }
+                    } else {
+                        assertFalse(jsonObjectListBucket.has("Contents"));
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    @Order(18)
+    @DisplayName("Test deleting non exist object with bucket")
+    public void testDeleteNonExistObjectWithBucket() {
+        // load input files for each type and create the backend
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            // add the backend specified in each file
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
+                        getAuthTokenHolder().getToken().getProject().getId());*/
+                // create the bucket specified in each file
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+
+                    // filename format is "bucket_<bucketname>.json", get the bucket name here
+                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
+
+                    // now delete the object
+                    int code = getHttpHandler().deleteObject(null,
+                            "adminTenantId", "fhy5657", "hjdhj");
+                    System.out.println("Verifying object is deleted: "+code);
+                    assertEquals("Delete non exist object: Response code not matched: ",code, 404);
+                    Response listObjectResponse = getHttpHandler().getBucketObjects("fhy5657");
+                    assertEquals("Bucket name not exist: Response code not matched: ", listObjectResponse.code()
+                            , 404);
+                }
+            }
+        }
+    }
+
+    @Test
+    @Order(19)
+    @DisplayName("Test deleting bucket and object")
+    public void testDeleteBucketAndObject() throws IOException {
+        // load input files for each type and create the backend
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            // add the backend specified in each file
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
+                        getAuthTokenHolder().getToken().getProject().getId());*/
+                // create the bucket specified in each file
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+
+                    // filename format is "bucket_<bucketname>.json", get the bucket name here
+                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
 
                     // now delete the object
                     int code = getHttpHandler().deleteObject(null,
                             "adminTenantId", bName, "Screenshot_1.jpg");
                     System.out.println("Verifying object is deleted: "+code);
                     assertEquals(code, 204);
+                    Response listObjectResponse = getHttpHandler().getBucketObjects(bName);
+                    assertEquals("Get list of object failed", listObjectResponse.code(), 200);
+                    JSONObject jsonObject = XML.toJSONObject(listObjectResponse.body().string());
+                    JSONObject jsonObjectListBucket = jsonObject.getJSONObject("ListBucketResult");
+                    if (jsonObjectListBucket.has("Contents")) {
+                        if (jsonObjectListBucket.get("Contents") instanceof JSONArray){
+                            JSONArray objects = jsonObjectListBucket.getJSONArray("Contents");
+                            for (int i = 0; i < objects.length(); i++) {
+                                assertNotEquals(objects.getJSONObject(i).get("Key").equals(bName),"Object is equal");
+                            }
+                        } else {
+                            assertNotEquals(jsonObjectListBucket.getJSONObject("Contents").get("Key").equals(bName),
+                                    "Object is equal");
+                        }
+                    } else {
+                        assertFalse(jsonObjectListBucket.has("Contents"));
+                    }
 
                     // now delete the bucket
                     int dbCode = getHttpHandler().deleteBucket(null,
@@ -602,8 +781,8 @@ class AllTests {
         }
     }
 
-    //@Test
-    @Order(8)
+    @Test
+    @Order(20)
     @DisplayName("Test deleting backend")
     public void testDeleteBackend() throws IOException {
         // load input files for each type and create the backend
@@ -627,8 +806,11 @@ class AllTests {
                 BackendsInputHolder backendsInputHolder = gson.fromJson(responseBody,
                         BackendsInputHolder.class);
                 // Filter backend
-                // TODO Bugs: Need to confirm backend name is same.
-                List<Backends> backend = backendsInputHolder.getBackends().stream()
+                List<Backends> backendFilter = backendsInputHolder.getBackends().stream()
+                        .filter(p -> !TextUtils.isEmpty(p.getName()))
+                        .collect(Collectors.toList());
+
+                List<Backends> backend = backendFilter.stream()
                         .filter(p -> p.getName().equals(inputHolder.getName()))
                         .collect(Collectors.toList());
                 assertNotNull(backend);
@@ -637,7 +819,7 @@ class AllTests {
                 for (int i = 0; i < backend.size(); i++) {
                     int responseCode = getHttpHandler().getDeleteBackend(null,
                             "adminTenantId", backend.get(i).getId());
-                    assertEquals(responseCode, 500);
+                    assertEquals(responseCode, 200);
                 }
             }
         }
