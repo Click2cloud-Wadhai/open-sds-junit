@@ -125,4 +125,13 @@ public class ConstantUrl {
     public String getListOfObjectFromBucketUrl(String bucketName) {
         return URL +"/v1/s3/"+bucketName;
     }
+
+    /**
+     * Enable encrypt on bucket.
+     *
+     * @param bucketName bucket name
+     */
+    public String getEnableEncryptOnBucketUrl(String bucketName) {
+        return URL +"/v1/s3/"+bucketName+"/?DefaultEncryption";
+    }
 }
