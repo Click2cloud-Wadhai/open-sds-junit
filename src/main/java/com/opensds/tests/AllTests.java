@@ -2,6 +2,7 @@
 package main.java.com.opensds.tests;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import main.java.com.opensds.HttpHandler;
 import main.java.com.opensds.TestResultHTMLPrinter;
 import main.java.com.opensds.Utils;
@@ -68,7 +69,7 @@ class AllTests {
 //    }
 
     @Test
-    @Order(1)
+    @Order(0)
     @DisplayName("Test creating bucket and backend on OPENSDS")
     public void testCreateBucketAndBackend() {
         // load input files for each type and create the backend
@@ -119,6 +120,43 @@ class AllTests {
                         e.printStackTrace();
                     }
                     assertTrue(bucketFound);
+                }
+            }
+        }
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("Test creating bucket using Invalid name")
+    public void testCreateBucketUsingCapsName() {
+        // load input files for each type and create the backend
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            Gson gson = new Gson();
+            // add the backend specified in each file
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+
+                // backend added, now create buckets
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
+                        getAuthTokenHolder().getToken().getProject().getId());*/
+                // create the bucket specified in each file
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+
+                    CreateBucketFileInput bfi = gson.fromJson(bucketContent, CreateBucketFileInput.class);
+
+                    // now create buckets
+                    int cbCode = getHttpHandler().createBucket(null,
+                            bfi, "RATR_@#", null, "adminTenantId");//signatureKey);
+                    assertEquals(cbCode, 400);
                 }
             }
         }
@@ -345,6 +383,53 @@ class AllTests {
 
     @Test
     @Order(8)
+    @DisplayName("Test verifying download non exist file")
+    public void testDownloadNonExistFile() {
+        List<File> listOfIBucketInputs =
+                Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                        Constant.CREATE_BUCKET_PATH);
+        for (File bucketFile : listOfIBucketInputs) {
+            String bucketContent = Utils.readFileContentsAsString(bucketFile);
+            assertNotNull(bucketContent);
+            String fileName = "download_image.jpg";
+            String bucketName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                    bucketFile.getName().indexOf("."));
+            int cbCode = getHttpHandler().downloadObject(null,
+                    bucketName, "23455@###", fileName);
+            assertEquals("Downloading non exist file: ", cbCode, 404);
+        }
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("Test verifying download file from non exist bucket")
+    public void testDownloadFileFromNonExistBucket() {
+        String dFileName = "download_image.jpg";
+        File fileRawData = new File(Constant.RAW_DATA_PATH);
+        File[] files = fileRawData.listFiles();
+        String mFileName = null;
+        for (File fileName : files) {
+            mFileName = fileName.getName();
+        }
+
+        int code = getHttpHandler().downloadObject(null,
+                "hfhfhd", mFileName, dFileName);
+        assertEquals("Downloading file from non exist bucket: ", code, 404);
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("Test verifying download file from non exist bucket and file name")
+    public void testDownloadNonExistBucketAndFile() {
+        String fileName = "download_image.jpg";
+        System.out.println("Verifying download file from non exist bucket and file name");
+        int responseCode = getHttpHandler().downloadObject(null,
+                "ghjhb", "yuyiyh", fileName);
+        assertEquals("Downloading file from non exist bucket and file name: ", responseCode, 400);
+    }
+
+    @Test
+    @Order(11)
     @DisplayName("Test downloading object in a folder")
     public void testDownloadObject() {
         // load input files for each type and create the backend
@@ -371,8 +456,9 @@ class AllTests {
                     for (File fileName : files) {
                         mFileName = fileName.getName();
                     }
+                    String fileName = "download_image.jpg";
                     File filePath = new File(Constant.DOWNLOAD_FILES_PATH);
-                    File downloadedFile = new File(Constant.DOWNLOAD_FILES_PATH,"download_image.jpg");
+                    File downloadedFile = new File(Constant.DOWNLOAD_FILES_PATH, fileName);
                     if (filePath.exists()) {
                         if (downloadedFile.exists()) {
                             boolean isDownloadedFileDeleted = downloadedFile.delete();
@@ -384,56 +470,12 @@ class AllTests {
                         filePath.mkdirs();
                     }
                     int cbCode = getHttpHandler().downloadObject(null,
-                            bucketName, mFileName);
+                            bucketName, mFileName, fileName);
                     assertEquals("Downloading failed", cbCode, 200);
                     assertTrue(downloadedFile.isFile(), "Downloaded Image is not available");
                 }
             }
         }
-    }
-
-    @Test
-    @Order(9)
-    @DisplayName("Test verifying download non exist file")
-    public void testDownloadNonExistFile() {
-        List<File> listOfIBucketInputs =
-                Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
-                        Constant.CREATE_BUCKET_PATH);
-        for (File bucketFile : listOfIBucketInputs) {
-            String bucketContent = Utils.readFileContentsAsString(bucketFile);
-            assertNotNull(bucketContent);
-            String bucketName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
-                    bucketFile.getName().indexOf("."));
-            int cbCode = getHttpHandler().downloadObject(null,
-                    bucketName, "23455@###");
-            assertEquals("Downloading non exist file: ", cbCode, 404);
-        }
-    }
-
-    @Test
-    @Order(10)
-    @DisplayName("Test verifying download file from non exist bucket")
-    public void testDownloadFileFromNonExistBucket() {
-        File fileRawData = new File(Constant.RAW_DATA_PATH);
-        File[] files = fileRawData.listFiles();
-        String mFileName = null;
-        for (File fileName : files) {
-            mFileName = fileName.getName();
-        }
-
-        int code = getHttpHandler().downloadObject(null,
-                "hfhfhd", mFileName);
-        assertEquals("Downloading file from non exist bucket: ", code, 404);
-    }
-
-    @Test
-    @Order(11)
-    @DisplayName("Test verifying download file from non exist bucket and file name")
-    public void testDownloadNonExistBucketAndFile() {
-        System.out.println("Verifying download file from non exist bucket and file name");
-        int responseCode = getHttpHandler().downloadObject(null,
-                "ghjhb", "yuyiyh");
-        assertEquals("Downloading file from non exist bucket and file name: ", responseCode, 400);
     }
 
     @Test
@@ -823,6 +865,240 @@ class AllTests {
                 }
             }
         }
+    }
+
+    @Test
+    @Order(21)
+    @DisplayName("Test enable encryption on bucket")
+    public void testEnableEncryptionOnBucket() throws IOException {
+        // load input files for each type and create the backend
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            Gson gson = new Gson();
+            // add the backend specified in each file
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+
+                AddBackendInputHolder inputHolder = gson.fromJson(content, AddBackendInputHolder.class);
+                int code = getHttpHandler().addBackend(null,
+                        "adminTenantId",
+                        inputHolder);
+                assertEquals(code, 200);
+
+                // backend added, now create buckets
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
+                        getAuthTokenHolder().getToken().getProject().getId());*/
+                // create the bucket specified in each file
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+
+                    CreateBucketFileInput bfi = gson.fromJson(bucketContent, CreateBucketFileInput.class);
+
+                    // filename format is "bucket_<bucketname>.json", get the bucket name here
+                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
+
+                    // now create buckets
+                    int cbCode = getHttpHandler().createBucket(null,
+                            bfi, bName, null, "adminTenantId");//signatureKey);
+                    System.out.println(cbCode);
+                    assertEquals(cbCode, 200);
+
+                    // now enable encryption on bucket
+                    int responseCode = getHttpHandler().createEncryptionBucket(null,
+                            bfi.getXmlRequestTrue(), bName, null, "adminTenantId");//signatureKey);
+                    assertEquals(responseCode, 200);
+
+                    Response listBucketResponse = getHttpHandler().getBuckets(null, "adminTenantId");
+                    JSONObject jsonObject = XML.toJSONObject(listBucketResponse.body().string());
+                    JSONArray jsonArray = jsonObject.getJSONObject("ListAllMyBucketsResult").getJSONArray("Buckets");
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                       String name = jsonArray.getJSONObject(i).get("Name").toString();
+                       if (!TextUtils.isEmpty(name)){
+                           if (name.equals(bName)){
+                              boolean isEncrypt = jsonArray.getJSONObject(i).getJSONObject("SSEConfiguration").getJSONObject("SSE")
+                                       .getBoolean("enabled");
+                              assertTrue(isEncrypt, "Not Encrypted: ");
+                           }
+                       }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    @Order(22)
+    @DisplayName("Test re-enable encryption on bucket")
+    public void testReEnableEncryptionOnBucket() {
+        // load input files for each type and create the backend
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            Gson gson = new Gson();
+            // add the backend specified in each file
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+
+                // backend added, now create buckets
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
+                        getAuthTokenHolder().getToken().getProject().getId());*/
+                // create the bucket specified in each file
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+
+                    CreateBucketFileInput bfi = gson.fromJson(bucketContent, CreateBucketFileInput.class);
+
+                    // filename format is "bucket_<bucketname>.json", get the bucket name here
+                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
+
+                    // now enable encryption on bucket
+                    int responseCode = getHttpHandler().createEncryptionBucket(null,
+                            bfi.getXmlRequestTrue(), bName, null, "adminTenantId");//signatureKey);
+                    assertEquals("Already enabled: ", responseCode, 409);
+                }
+            }
+        }
+    }
+
+    @Test
+    @Order(23)
+    @DisplayName("Test upload object in  encryption enabled bucket")
+    public void testUploadObjectInEnableEncryptionBucket() {
+        testUploadObject();
+    }
+
+    @Test
+    @Order(24)
+    @DisplayName("Test download object from  encryption enabled bucket")
+    public void testDownloadObjectFromEnableEncryptionBucket() {
+        // load input files for each type and create the backend
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+                // backend added, now create buckets
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+                    String bucketName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
+                    // Get object for upload.
+                    File fileRawData = new File(Constant.RAW_DATA_PATH);
+                    File[] files = fileRawData.listFiles();
+                    String mFileName = null;
+                    for (File fileName : files) {
+                        mFileName = fileName.getName();
+                    }
+                    String fileName = "Enc_download_image.jpg";
+                    File filePath = new File(Constant.DOWNLOAD_FILES_PATH);
+                    File downloadedFile = new File(Constant.DOWNLOAD_FILES_PATH,fileName);
+                    if (filePath.exists()) {
+                        if (downloadedFile.exists()) {
+                            boolean isDownloadedFileDeleted = downloadedFile.delete();
+                            assertTrue(isDownloadedFileDeleted, "Image deleting is failed");
+                        } else {
+                            assertFalse(downloadedFile.exists());
+                        }
+                    } else {
+                        filePath.mkdirs();
+                    }
+                    int cbCode = getHttpHandler().downloadObject(null,
+                            bucketName, mFileName, fileName);
+                    assertEquals("Encrypted object downloading failed: ", cbCode, 200);
+                    assertTrue(downloadedFile.isFile(), "Downloaded Image is not available");
+                }
+            }
+        }
+    }
+
+    @Test
+    @Order(25)
+    @DisplayName("Test disable encryption on bucket")
+    public void testDisableEncryptionOnBucket() throws IOException {
+        // load input files for each type and create the backend
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            Gson gson = new Gson();
+            // add the backend specified in each file
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+
+                // backend added, now create buckets
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
+                        getAuthTokenHolder().getToken().getProject().getId());*/
+                // create the bucket specified in each file
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+
+                    CreateBucketFileInput bfi = gson.fromJson(bucketContent, CreateBucketFileInput.class);
+
+                    // filename format is "bucket_<bucketname>.json", get the bucket name here
+                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
+
+                    // now enable encryption on bucket
+                    int responseCode = getHttpHandler().createEncryptionBucket(null,
+                            bfi.getXmlRequestFalse(), bName, null, "adminTenantId");//signatureKey);
+                    assertEquals(responseCode, 200);
+
+                    Response listBucketResponse = getHttpHandler().getBuckets(null, "adminTenantId");
+                    JSONObject jsonObject = XML.toJSONObject(listBucketResponse.body().string());
+                    JSONArray jsonArray = jsonObject.getJSONObject("ListAllMyBucketsResult").getJSONArray("Buckets");
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        String name = jsonArray.getJSONObject(i).get("Name").toString();
+                        if (!TextUtils.isEmpty(name)){
+                            if (name.equals(bName)){
+                                boolean isEncrypt = jsonArray.getJSONObject(i).getJSONObject("SSEConfiguration").getJSONObject("SSE")
+                                        .getBoolean("enabled");
+                                assertFalse(isEncrypt, "Encrypted: ");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    @Order(26)
+    @DisplayName("Test deleting bucket and object after encryption process")
+    public void testDeleteBucketAndObjectEncryptionBucket() throws IOException {
+        testDeleteBucketAndObject();
+    }
+
+    @Test
+    @Order(27)
+    @DisplayName("Test deleting backend after encryption process")
+    public void testDeleteBackendAfterEncryptionProcess() throws IOException {
+        testDeleteBackend();
     }
 }
 

@@ -805,7 +805,7 @@ public class HttpHandler {
         return code;
     }
 
-    public int downloadObject(String x_auth_token, String bucketName, String fileName) {
+    public int downloadObject(String x_auth_token, String bucketName, String fileName, String downloadFileName) {
         int code = -1;
         try {
             String url = ConstantUrl.getInstance().getDownloadObjectUrl(bucketName, fileName);
@@ -815,11 +815,74 @@ public class HttpHandler {
                     .addHeader("Content-Type", "application/xml")
                     .build();
             Response response = client.newCall(request).execute();
-            BufferedSink sink = Okio.buffer(Okio.sink(new File(Constant.DOWNLOAD_FILES_PATH, "download_image.jpg")));
+            code = response.code();
+            BufferedSink sink = Okio.buffer(Okio.sink(new File(Constant.DOWNLOAD_FILES_PATH, downloadFileName)));
             sink.writeAll(response.body().source());
             sink.close();
             response.body().close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return code;
+    }
+
+    public int createEncryptionBucket(String x_auth_token, String input, String bucketName,
+                            SignatureKey signatureKey, String projId) {
+        int code = -1;
+        try {
+
+            RequestBody body = RequestBody.create(
+                    MediaType.parse("application/xml; charset=utf-8"),
+                    input);
+
+            String url = ConstantUrl.getInstance().getEnableEncryptOnBucketUrl(bucketName);
+
+            // add AK/SK
+
+            /*String authorization = signer.computeSignature(headers,
+                    null, // no query parameters
+                    contentHashString,
+                    awsAccessKey,
+                    awsSecretKey);
+
+            String kSigning = getKSigning(signatureKey.getSecretAccessKey(),
+                    signatureKey.getDayDate(),
+                    signatureKey.getRegionName(),
+                    signatureKey.getServiceName(),
+                    signatureKey.getDateStamp(), signatureKey, "PUT", "v1/s3/" + bucketName);
+
+
+            String credential = signatureKey.getAccessKey() + "/" +
+                    signatureKey.getDateStamp().substring(0, 8) + "/" +
+                    signatureKey.getRegionName() + "/" +
+                    signatureKey.getServiceName() + "/" + "sign_request";*/
+
+            //String signature = "OPENSDS-HMAC-SHA256" + " Credential=" + credential + ",SignedHeaders=host;x-auth-date" + ",Signature=" + kSigning;
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .put(body)
+                    .addHeader("Accept", "application/json, text/plain, */*")
+                    .addHeader("Accept-Encoding", "gzip, deflate, br")
+                    .addHeader("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8")
+                    //.addHeader("Authorization", signature)
+                    .addHeader("Connection", "keep-alive")
+                    //.addHeader("Content-Length", "204")
+                    .addHeader("Content-Type", "application/xml")
+//                    .addHeader("Host", System.getenv("HOST_IP") + ":8088")
+//                    .addHeader("Origin", "http://" + System.getenv("HOST_IP") + ":8088")
+//                    .addHeader("Referer", "http://" + System.getenv("HOST_IP") + ":8088")
+                    .addHeader("Sec-Fetch-Mode", "cors")
+                    .addHeader("Sec-Fetch-Site", "same-origin")
+                    .addHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36")
+                    //.addHeader("X-Auth-Date", signatureKey.getDateStamp())//getHmacSHA256(signatureKey.getDayDate(), "OPENSDS" + signatureKey.getSecretAccessKey()))
+                    .build();
+
+            System.out.println(request.headers());
+            //System.out.println(signatureKey);
+            Response response = client.newCall(request).execute();
             code = response.code();
+            System.out.println(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
         }
