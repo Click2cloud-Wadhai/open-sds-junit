@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Utils {
     public static List<File> listFilesMatchingBeginsWithPatternInPath(final String beginPattern, String path) {
@@ -40,5 +41,16 @@ public class Utils {
             e.printStackTrace();
         }
         return content;
+    }
+
+    public static String getBucketName(File bucketFile){
+        return bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                bucketFile.getName().indexOf("."));
+    }
+
+    public static String getRandomName(String name){
+        Random rand = new Random();
+        int randInt = rand.nextInt(10000);
+        return name+randInt;
     }
 }

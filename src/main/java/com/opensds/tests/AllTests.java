@@ -632,7 +632,7 @@ class AllTests {
     @Test
     @Order(16)
     @DisplayName("Test deleting non exist bucket")
-    public void testDeleteNonExistBucket() {
+    public void testDeleteNonExistBucket() throws IOException {
         // load input files for each type and create the backend
         for (Type t : getTypesHolder().getTypes()) {
             List<File> listOfIInputsForType =
@@ -661,6 +661,11 @@ class AllTests {
                     int dbCode = getHttpHandler().deleteBucket(null,
                             "adminTenantId", "tdggfv");//signatureKey);
                     assertEquals("Delete non exist bucket: Response code not matched: ",dbCode, 404);
+
+                    Response listBucketResponse = getHttpHandler().getBuckets(null, "adminTenantId");
+                    boolean bucketFound = getHttpHandler()
+                            .doesListBucketResponseContainBucketByName(listBucketResponse.body().string(), "tdggfv");
+                    assertFalse(bucketFound);
                 }
             }
         }
@@ -818,6 +823,11 @@ class AllTests {
                             "adminTenantId", bName);//signatureKey);
                     System.out.println("Verifying bucket is deleted: "+dbCode);
                     assertEquals(dbCode, 200);
+
+                    Response listBucketResponse = getHttpHandler().getBuckets(null, "adminTenantId");
+                    boolean bucketFound = getHttpHandler()
+                            .doesListBucketResponseContainBucketByName(listBucketResponse.body().string(), bName);
+                    assertFalse(bucketFound);
                 }
             }
         }
