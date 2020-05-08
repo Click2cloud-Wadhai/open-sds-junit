@@ -256,7 +256,7 @@ public class LifecycleTests {
                 int code = getHttpHandler().addBackend(null,
                         "adminTenantId",
                         inputHolder);
-                assertEquals(code, 400);
+                assertEquals(code, 200);
 
                 // backend added, now create buckets
                 List<File> listOfIBucketInputs =
@@ -285,7 +285,7 @@ public class LifecycleTests {
                     int codeResponse = getHttpHandler().createLifecycleSameRule(null,
                             "adminTenantId",lifecycleInputHolder,
                             bName);
-                    assertEquals(codeResponse, 200);
+                    assertEquals("rule already exists.", codeResponse, 409);
                 }
 
             }
@@ -310,7 +310,7 @@ public class LifecycleTests {
                 int code = getHttpHandler().addBackend(null,
                         "adminTenantId",
                         inputHolder);
-                assertEquals(code, 400);
+                assertEquals(code, 200);
 
                 // backend added, now create buckets
                 List<File> listOfIBucketInputs =
@@ -339,7 +339,7 @@ public class LifecycleTests {
                     int codeResponse = getHttpHandler().createLifecycleExtendedDays(null,
                             "adminTenantId",lifecycleInputHolder,
                             bName);
-                    assertEquals(codeResponse, 400);
+                    assertEquals("minimum days for an object in the current storage class is less before transition action", codeResponse, 403);
                 }
 
             }
