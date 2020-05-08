@@ -11,6 +11,8 @@ import main.java.com.opensds.jsonmodels.authtokensrequests.Token;
 import main.java.com.opensds.jsonmodels.authtokensresponses.AuthTokenHolder;
 import main.java.com.opensds.jsonmodels.inputs.addbackend.AddBackendInputHolder;
 import main.java.com.opensds.jsonmodels.inputs.createbucket.CreateBucketFileInput;
+import main.java.com.opensds.jsonmodels.inputs.createlifecycle.AddLifecycleInputHolder;
+import main.java.com.opensds.jsonmodels.inputs.createlifecycle.DisplayLifecycleInputHolder;
 import main.java.com.opensds.jsonmodels.logintokensrequests.*;
 import main.java.com.opensds.jsonmodels.projectsresponses.ProjectsHolder;
 import main.java.com.opensds.jsonmodels.responses.listbackends.ListBackendResponse;
@@ -883,6 +885,192 @@ public class HttpHandler {
             Response response = client.newCall(request).execute();
             code = response.code();
             System.out.println(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return code;
+    }
+
+    public int createLifecycle(String x_auth_token, String projId, AddLifecycleInputHolder inputHolder, String bucketName) {
+        int code = -1;
+        try {
+            MediaType mediaType = MediaType.parse("application/json");
+            Gson gson = new Gson();
+            RequestBody body = RequestBody.create(
+                    MediaType.parse("application/xml; charset=utf-8"),
+                    inputHolder.getXmlCreateLifecycle()
+            );
+
+            String url = ConstantUrl.getInstance().getCreateLifeCycleUrl(bucketName);
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .put(body)
+                    .addHeader("Accept", "application/json, text/plain, */*")
+                    .addHeader("Accept-Encoding", "gzip, deflate, br")
+                    .addHeader("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8")
+                    //.addHeader("Authorization", signature)
+                    .addHeader("Connection", "keep-alive")
+                    //.addHeader("Content-Length", "204")
+                    .addHeader("Content-Type", "application/xml")
+//                    .addHeader("Host", System.getenv("HOST_IP") + ":8088")
+//                    .addHeader("Origin", "http://" + System.getenv("HOST_IP") + ":8088")
+//                    .addHeader("Referer", "http://" + System.getenv("HOST_IP") + ":8088")
+                    .addHeader("Sec-Fetch-Mode", "cors")
+                    .addHeader("Sec-Fetch-Site", "same-origin")
+                    .addHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36")
+                    //.addHeader("X-Auth-Date", signatureKey.getDateStamp())//getHmacSHA256(signatureKey.getDayDate(), "OPENSDS" + signatureKey.getSecretAccessKey()))
+                    .build();
+
+            System.out.println(request.headers());
+            //System.out.println(signatureKey);
+            Response response = client.newCall(request).execute();
+            System.out.println("Lifecycle response"+response.body().string());
+            code = response.code();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return code;
+    }
+
+    public int displayLifecycle(String x_auth_token, String projId, DisplayLifecycleInputHolder inputHolder, String bucketName) {
+        int code = -1;
+        try {
+            MediaType mediaType = MediaType.parse("application/json");
+            Gson gson = new Gson();
+            RequestBody body = RequestBody.create(
+                    MediaType.parse("application/xml; charset=utf-8"),
+                    inputHolder.getXmlDisplayLifecycle()
+            );
+
+            String url = ConstantUrl.getInstance().displayCreateLifeCycleUrl(bucketName);
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .put(body)
+                    .addHeader("Accept", "application/json, text/plain, */*")
+                    .addHeader("Accept-Encoding", "gzip, deflate, br")
+                    .addHeader("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8")
+                    //.addHeader("Authorization", signature)
+                    .addHeader("Connection", "keep-alive")
+                    //.addHeader("Content-Length", "204")
+                    .addHeader("Content-Type", "application/xml")
+//                    .addHeader("Host", System.getenv("HOST_IP") + ":8088")
+//                    .addHeader("Origin", "http://" + System.getenv("HOST_IP") + ":8088")
+//                    .addHeader("Referer", "http://" + System.getenv("HOST_IP") + ":8088")
+                    .addHeader("Sec-Fetch-Mode", "cors")
+                    .addHeader("Sec-Fetch-Site", "same-origin")
+                    .addHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36")
+                    //.addHeader("X-Auth-Date", signatureKey.getDateStamp())//getHmacSHA256(signatureKey.getDayDate(), "OPENSDS" + signatureKey.getSecretAccessKey()))
+                    .build();
+
+            System.out.println(request.headers());
+            //System.out.println(signatureKey);
+            Response response = client.newCall(request).execute();
+            System.out.println("Lifecycle display response"+response.body().string());
+            code = response.code();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return code;
+    }
+
+    public int deleteLifecycle(String x_auth_token, String projId, String bucketName, String ruleName) {
+        int code = -1;
+        try {
+            String url = ConstantUrl.getInstance().getDeletelifecycleUrl(bucketName, ruleName);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .delete()
+                    .addHeader("Content-Type", "application/xml")
+                    .build();
+
+            Response response  = client.newCall(request).execute();
+            code = response.code();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return code;
+    }
+
+    public int createLifecycleSameRule(String x_auth_token, String projId, AddLifecycleInputHolder inputHolder, String bucketName) {
+        int code = -1;
+        try {
+            MediaType mediaType = MediaType.parse("application/json");
+            Gson gson = new Gson();
+            RequestBody body = RequestBody.create(
+                    MediaType.parse("application/xml; charset=utf-8"),
+                    inputHolder.getXmlCreateLifecycleSameRule()
+            );
+
+            String url = ConstantUrl.getInstance().getCreateLifeCycleUrl(bucketName);
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .put(body)
+                    .addHeader("Accept", "application/json, text/plain, */*")
+                    .addHeader("Accept-Encoding", "gzip, deflate, br")
+                    .addHeader("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8")
+                    //.addHeader("Authorization", signature)
+                    .addHeader("Connection", "keep-alive")
+                    //.addHeader("Content-Length", "204")
+                    .addHeader("Content-Type", "application/xml")
+//                    .addHeader("Host", System.getenv("HOST_IP") + ":8088")
+//                    .addHeader("Origin", "http://" + System.getenv("HOST_IP") + ":8088")
+//                    .addHeader("Referer", "http://" + System.getenv("HOST_IP") + ":8088")
+                    .addHeader("Sec-Fetch-Mode", "cors")
+                    .addHeader("Sec-Fetch-Site", "same-origin")
+                    .addHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36")
+                    //.addHeader("X-Auth-Date", signatureKey.getDateStamp())//getHmacSHA256(signatureKey.getDayDate(), "OPENSDS" + signatureKey.getSecretAccessKey()))
+                    .build();
+
+            System.out.println(request.headers());
+            //System.out.println(signatureKey);
+            Response response = client.newCall(request).execute();
+            System.out.println("Lifecycle response same rule"+response.body().string());
+            code = response.code();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return code;
+    }
+
+    public int createLifecycleExtendedDays(String x_auth_token, String projId, AddLifecycleInputHolder inputHolder, String bucketName) {
+        int code = -1;
+        try {
+            MediaType mediaType = MediaType.parse("application/json");
+            Gson gson = new Gson();
+            RequestBody body = RequestBody.create(
+                    MediaType.parse("application/xml; charset=utf-8"),
+                    inputHolder.getXmlCreateLifecycleExtendedDays()
+            );
+
+            String url = ConstantUrl.getInstance().getCreateLifeCycleUrl(bucketName);
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .put(body)
+                    .addHeader("Accept", "application/json, text/plain, */*")
+                    .addHeader("Accept-Encoding", "gzip, deflate, br")
+                    .addHeader("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8")
+                    //.addHeader("Authorization", signature)
+                    .addHeader("Connection", "keep-alive")
+                    //.addHeader("Content-Length", "204")
+                    .addHeader("Content-Type", "application/xml")
+//                    .addHeader("Host", System.getenv("HOST_IP") + ":8088")
+//                    .addHeader("Origin", "http://" + System.getenv("HOST_IP") + ":8088")
+//                    .addHeader("Referer", "http://" + System.getenv("HOST_IP") + ":8088")
+                    .addHeader("Sec-Fetch-Mode", "cors")
+                    .addHeader("Sec-Fetch-Site", "same-origin")
+                    .addHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36")
+                    //.addHeader("X-Auth-Date", signatureKey.getDateStamp())//getHmacSHA256(signatureKey.getDayDate(), "OPENSDS" + signatureKey.getSecretAccessKey()))
+                    .build();
+
+            System.out.println(request.headers());
+            //System.out.println(signatureKey);
+            Response response = client.newCall(request).execute();
+            System.out.println("Lifecycle response same rule"+response.body().string());
+            code = response.code();
         } catch (Exception e) {
             e.printStackTrace();
         }

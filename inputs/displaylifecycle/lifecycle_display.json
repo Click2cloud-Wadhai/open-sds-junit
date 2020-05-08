@@ -1,0 +1,3 @@
+{
+  "xmlDisplayLifecycle": "<LifecycleConfiguration xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">\n<Rule><ID>abcc</ID><Filter>\n<Prefix></Prefix></Filter>\n<Status>Disabled</Status>\n<Transition>\n<StorageClass>STANDARD_IA</StorageClass>\n<Days>30</Days>\n<Backend></Backend></Transition>\n<Transition>\n<StorageClass>GLACIER</StorageClass>\n<Days>60</Days>\n<Backend></Backend>\n</Transition>\n<Expiration>\n<Days>61</Days>\n</Expiration>\n<AbortIncompleteMultipartUpload>\n<DaysAfterInitiation>7</DaysAfterInitiation>\n</AbortIncompleteMultipartUpload></Rule></LifecycleConfiguration>\n"
+}
