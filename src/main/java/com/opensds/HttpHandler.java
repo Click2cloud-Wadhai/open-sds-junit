@@ -2,7 +2,6 @@ package main.java.com.opensds;
 
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import main.java.com.opensds.jsonmodels.akskresponses.AKSKHolder;
 import main.java.com.opensds.jsonmodels.akskresponses.SignatureKey;
 import main.java.com.opensds.jsonmodels.authtokensrequests.Project;
@@ -12,7 +11,6 @@ import main.java.com.opensds.jsonmodels.authtokensresponses.AuthTokenHolder;
 import main.java.com.opensds.jsonmodels.inputs.addbackend.AddBackendInputHolder;
 import main.java.com.opensds.jsonmodels.inputs.createbucket.CreateBucketFileInput;
 import main.java.com.opensds.jsonmodels.inputs.createlifecycle.AddLifecycleInputHolder;
-import main.java.com.opensds.jsonmodels.inputs.createlifecycle.DisplayLifecycleInputHolder;
 import main.java.com.opensds.jsonmodels.logintokensrequests.*;
 import main.java.com.opensds.jsonmodels.projectsresponses.ProjectsHolder;
 import main.java.com.opensds.jsonmodels.responses.listbackends.ListBackendResponse;
@@ -23,9 +21,6 @@ import main.java.com.opensds.utils.ConstantUrl;
 import okhttp3.*;
 import okio.BufferedSink;
 import okio.Okio;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.XML;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -933,21 +928,14 @@ public class HttpHandler {
         return code;
     }
 
-    public int displayLifecycle(String x_auth_token, String projId, DisplayLifecycleInputHolder inputHolder, String bucketName) {
+    public int displayLifecycle(String x_auth_token, String projId, String bucketName) {
         int code = -1;
         try {
-            MediaType mediaType = MediaType.parse("application/json");
-            Gson gson = new Gson();
-            RequestBody body = RequestBody.create(
-                    MediaType.parse("application/xml; charset=utf-8"),
-                    inputHolder.getXmlDisplayLifecycle()
-            );
-
             String url = ConstantUrl.getInstance().displayCreateLifeCycleUrl(bucketName);
 
             Request request = new Request.Builder()
                     .url(url)
-                    .put(body)
+                    .get()
                     .addHeader("Accept", "application/json, text/plain, */*")
                     .addHeader("Accept-Encoding", "gzip, deflate, br")
                     .addHeader("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8")

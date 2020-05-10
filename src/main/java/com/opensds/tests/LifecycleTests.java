@@ -9,7 +9,6 @@ import main.java.com.opensds.jsonmodels.inputs.addbackend.Backends;
 import main.java.com.opensds.jsonmodels.inputs.addbackend.BackendsInputHolder;
 import main.java.com.opensds.jsonmodels.inputs.createbucket.CreateBucketFileInput;
 import main.java.com.opensds.jsonmodels.inputs.createlifecycle.AddLifecycleInputHolder;
-import main.java.com.opensds.jsonmodels.inputs.createlifecycle.DisplayLifecycleInputHolder;
 import main.java.com.opensds.jsonmodels.typesresponse.Type;
 import main.java.com.opensds.jsonmodels.typesresponse.TypesHolder;
 import main.java.com.opensds.utils.Constant;
@@ -492,14 +491,9 @@ public class LifecycleTests {
                             bucketFile.getName().indexOf("."));
                     System.out.println(bName);
 
-                    List<File> listOfLifeCycleInputs =
-                            Utils.listFilesMatchingBeginsWithPatternInPath("lifecycle",
-                                    Constant.DISPLAY_LIFECYCLE_PATH);
-                    String displayLifeCycleContent = Utils.readFileContentsAsString(listOfLifeCycleInputs.get(0));
-                    assertNotNull(displayLifeCycleContent);
-                    DisplayLifecycleInputHolder lifecycleInputHolder = gson.fromJson(displayLifeCycleContent, DisplayLifecycleInputHolder.class);
+                    //Display Lifecycle
                     int codeResponse = getHttpHandler().displayLifecycle(null,
-                            "adminTenantId",lifecycleInputHolder,
+                            "adminTenantId",
                             bName);
                     assertEquals(codeResponse, 200);
                 }
@@ -510,6 +504,16 @@ public class LifecycleTests {
 
     @Test
     @Order(8)
+    @DisplayName("Listing Lifecycle with wrong bucket name")
+    public void testDisplayLifecycleWithWrongBucket() {
+        int codeResponse = getHttpHandler().displayLifecycle(null,
+                "adminTenantId",
+                "wrongBucketName");
+        assertEquals("The specified bucket does not exist", codeResponse, 404);
+    }
+
+    @Test
+    @Order(9)
     @DisplayName("Test deleting lifecycle")
     public void testDeleteLifecycle() throws IOException {
         for (Type t : getTypesHolder().getTypes()) {
@@ -547,7 +551,7 @@ public class LifecycleTests {
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     @DisplayName("Test deleting bucket and object")
     public void testDeleteBucketAndObject() throws IOException {
         // load input files for each type and create the backend
@@ -608,7 +612,7 @@ public class LifecycleTests {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     @DisplayName("Test deleting backend")
     public void testDeleteBackend() throws IOException {
         // load input files for each type and create the backend
