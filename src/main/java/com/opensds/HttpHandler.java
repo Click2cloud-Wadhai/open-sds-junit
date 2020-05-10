@@ -972,7 +972,25 @@ public class HttpHandler {
                     .delete()
                     .addHeader("Content-Type", "application/xml")
                     .build();
+            System.out.println(url);
+            Response response  = client.newCall(request).execute();
+            code = response.code();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return code;
+    }
 
+    public int deleteLifecyclewithNoRule(String x_auth_token, String projId, String bucketName) {
+        int code = -1;
+        try {
+            String url = ConstantUrl.getInstance().getDeletelifecycleUrlWithNoRule(bucketName);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .delete()
+                    .addHeader("Content-Type", "application/xml")
+                    .build();
+            System.out.println(url);
             Response response  = client.newCall(request).execute();
             code = response.code();
         } catch (Exception e) {

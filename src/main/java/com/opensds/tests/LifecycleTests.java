@@ -220,7 +220,7 @@ public class LifecycleTests {
                     String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
                             bucketFile.getName().indexOf("."));
                     System.out.println(bName);
-
+                    //Lifecycle creation started
                     List<File> listOfLifeCycleInputs =
                             Utils.listFilesMatchingBeginsWithPatternInPath("lifecycle",
                                     Constant.CREATE_LIFECYCLE_PATH);
@@ -274,7 +274,7 @@ public class LifecycleTests {
                     String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
                             bucketFile.getName().indexOf("."));
                     System.out.println(bName);
-
+                    //Lifecycle creation started
                     List<File> listOfLifeCycleInputs =
                             Utils.listFilesMatchingBeginsWithPatternInPath("lifecycle",
                                     Constant.CREATE_LIFECYCLE_PATH);
@@ -328,6 +328,7 @@ public class LifecycleTests {
                     String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
                             bucketFile.getName().indexOf("."));
                     System.out.println(bName);
+                    //Lifecycle creation started
 
                     List<File> listOfLifeCycleInputs =
                             Utils.listFilesMatchingBeginsWithPatternInPath("lifecycle",
@@ -382,6 +383,7 @@ public class LifecycleTests {
                     String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
                             bucketFile.getName().indexOf("."));
                     System.out.println(bName);
+                    //Lifecycle creation started
 
                     List<File> listOfLifeCycleInputs =
                             Utils.listFilesMatchingBeginsWithPatternInPath("lifecycle",
@@ -436,6 +438,7 @@ public class LifecycleTests {
                     String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
                             bucketFile.getName().indexOf("."));
                     System.out.println(bName);
+                    //Lifecycle creation started
 
                     List<File> listOfLifeCycleInputs =
                             Utils.listFilesMatchingBeginsWithPatternInPath("lifecycle",
@@ -456,7 +459,7 @@ public class LifecycleTests {
     @Test
     @Order(7)
     @DisplayName("Listing Lifecycle")
-    public void testDisplayLifecycle() {
+    public void     testDisplayLifecycle() {
         for (Type t : getTypesHolder().getTypes()) {
             List<File> listOfIInputsForType =
                     Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
@@ -539,7 +542,7 @@ public class LifecycleTests {
                     String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
                             bucketFile.getName().indexOf("."));
 
-                    // now delete the object
+                    // now delete the lifecycle
                     int code = getHttpHandler().deleteLifecycle(null,
                             "adminTenantId", bName, "abcc");
                     System.out.println("Verifying lifecycle is deleted: "+code);
@@ -552,6 +555,171 @@ public class LifecycleTests {
 
     @Test
     @Order(10)
+    @DisplayName("Test deleting lifecycle with non existing bucket name")
+    public void testDeleteLifecycleNonExist() throws IOException {
+                    int code = getHttpHandler().deleteLifecycle(null,
+                            "adminTenantId", "NonExistentBucket", "abcc");
+                    System.out.println("Verifying lifecycle is deleted: "+code);
+                    assertEquals("The specified bucket does not exist", code, 404);
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("Test deleting lifecycle on already deleted lifecycle")
+    public void testDeleteLifecycleAlreadyDeleted() throws IOException {
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            // add the backend specified in each file
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
+                        getAuthTokenHolder().getToken().getProject().getId());*/
+                // create the bucket specified in each file
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+
+                    // filename format is "bucket_<bucketname>.json", get the bucket name here
+                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
+
+                    // now delete the lifecycle
+                    int code = getHttpHandler().deleteLifecycle(null,
+                            "adminTenantId", bName, "abcc");
+                    System.out.println("Verifying lifecycle is deleted: "+code);
+                    assertEquals("The specified bucket does not have LifeCycle configured", code, 404);
+
+                }
+            }
+        }
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("Test deleting lifecycle without rule")
+    public void testDeleteLifecycleWithoutrule() throws IOException {
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            // add the backend specified in each file
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
+                        getAuthTokenHolder().getToken().getProject().getId());*/
+                // create the bucket specified in each file
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+
+                    // filename format is "bucket_<bucketname>.json", get the bucket name here
+                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
+
+                    // now delete the lifecycle
+                    int code = getHttpHandler().deleteLifecycle(null,
+                            "adminTenantId", bName, "");
+                    System.out.println("Verifying lifecycle is deleted: "+code);
+                    assertEquals("No rule is mentioned", code, 404);
+
+                }
+            }
+        }
+
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("Test deleting lifecycle with wrong name of the rule")
+    public void testDeleteLifecycleWithWrongName() throws IOException {
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            // add the backend specified in each file
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
+                        getAuthTokenHolder().getToken().getProject().getId());*/
+                // create the bucket specified in each file
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+
+                    // filename format is "bucket_<bucketname>.json", get the bucket name here
+                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
+
+                    // now delete the lifecycle
+                    int code = getHttpHandler().deleteLifecycle(null,
+                            "adminTenantId", bName, "wrongName");
+                    System.out.println("Verifying lifecycle is deleted: "+code);
+                    assertEquals("Wrong Name", code, 404);
+
+                }
+            }
+        }
+
+    }
+
+    @Test
+    @Order(14)
+    @DisplayName("Test deleting lifecycle with no rule parameter")
+    public void testDeleteLifecycleWithNoRule() throws IOException {
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            // add the backend specified in each file
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
+                        getAuthTokenHolder().getToken().getProject().getId());*/
+                // create the bucket specified in each file
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+
+                    // filename format is "bucket_<bucketname>.json", get the bucket name here
+                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
+
+                    // now delete the lifecycle
+                    int code = getHttpHandler().deleteLifecyclewithNoRule(null,
+                            "adminTenantId", bName);
+                    System.out.println("Verifying lifecycle is deleted: "+code);
+                    assertEquals("Rule Parameter is missing", code, 404);
+
+                }
+            }
+        }
+
+    }
+
+    @Test
+    @Order(15)
     @DisplayName("Test deleting bucket and object")
     public void testDeleteBucketAndObject() throws IOException {
         // load input files for each type and create the backend
@@ -612,7 +780,7 @@ public class LifecycleTests {
     }
 
     @Test
-    @Order(11)
+    @Order(16)
     @DisplayName("Test deleting backend")
     public void testDeleteBackend() throws IOException {
         // load input files for each type and create the backend

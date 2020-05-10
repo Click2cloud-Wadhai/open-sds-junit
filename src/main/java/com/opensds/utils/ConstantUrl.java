@@ -147,4 +147,8 @@ public class ConstantUrl {
         return URL +"/v1/s3/"+bucketName+"/?lifecycle&ruleID="+ruleName;
     }
 
+    public String getDeletelifecycleUrlWithNoRule(String bucketName) {
+        return URL +"/v1/s3/"+bucketName+"/?lifecycle";
+    }
+
 }
