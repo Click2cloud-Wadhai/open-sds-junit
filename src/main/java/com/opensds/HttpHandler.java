@@ -1076,4 +1076,88 @@ public class HttpHandler {
         }
         return code;
     }
+
+    public int createLifecycleWithoutName(String x_auth_token, String projId, AddLifecycleInputHolder inputHolder, String bucketName) {
+        int code = -1;
+        try {
+            MediaType mediaType = MediaType.parse("application/json");
+            Gson gson = new Gson();
+            RequestBody body = RequestBody.create(
+                    MediaType.parse("application/xml; charset=utf-8"),
+                    inputHolder.getXmlCreateLifecycleWithoutName()
+            );
+
+            String url = ConstantUrl.getInstance().getCreateLifeCycleUrl(bucketName);
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .put(body)
+                    .addHeader("Accept", "application/json, text/plain, */*")
+                    .addHeader("Accept-Encoding", "gzip, deflate, br")
+                    .addHeader("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8")
+                    //.addHeader("Authorization", signature)
+                    .addHeader("Connection", "keep-alive")
+                    //.addHeader("Content-Length", "204")
+                    .addHeader("Content-Type", "application/xml")
+//                    .addHeader("Host", System.getenv("HOST_IP") + ":8088")
+//                    .addHeader("Origin", "http://" + System.getenv("HOST_IP") + ":8088")
+//                    .addHeader("Referer", "http://" + System.getenv("HOST_IP") + ":8088")
+                    .addHeader("Sec-Fetch-Mode", "cors")
+                    .addHeader("Sec-Fetch-Site", "same-origin")
+                    .addHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36")
+                    //.addHeader("X-Auth-Date", signatureKey.getDateStamp())//getHmacSHA256(signatureKey.getDayDate(), "OPENSDS" + signatureKey.getSecretAccessKey()))
+                    .build();
+
+            System.out.println(request.headers());
+            //System.out.println(signatureKey);
+            Response response = client.newCall(request).execute();
+            System.out.println("Lifecycle response same rule"+response.body().string());
+            code = response.code();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return code;
+    }
+
+    public int createLifecycleLessDays(String x_auth_token, String projId, AddLifecycleInputHolder inputHolder, String bucketName) {
+        int code = -1;
+        try {
+            MediaType mediaType = MediaType.parse("application/json");
+            Gson gson = new Gson();
+            RequestBody body = RequestBody.create(
+                    MediaType.parse("application/xml; charset=utf-8"),
+                    inputHolder.getXmlCreateLifecycleLessDays()
+            );
+
+            String url = ConstantUrl.getInstance().getCreateLifeCycleUrl(bucketName);
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .put(body)
+                    .addHeader("Accept", "application/json, text/plain, */*")
+                    .addHeader("Accept-Encoding", "gzip, deflate, br")
+                    .addHeader("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8")
+                    //.addHeader("Authorization", signature)
+                    .addHeader("Connection", "keep-alive")
+                    //.addHeader("Content-Length", "204")
+                    .addHeader("Content-Type", "application/xml")
+//                    .addHeader("Host", System.getenv("HOST_IP") + ":8088")
+//                    .addHeader("Origin", "http://" + System.getenv("HOST_IP") + ":8088")
+//                    .addHeader("Referer", "http://" + System.getenv("HOST_IP") + ":8088")
+                    .addHeader("Sec-Fetch-Mode", "cors")
+                    .addHeader("Sec-Fetch-Site", "same-origin")
+                    .addHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36")
+                    //.addHeader("X-Auth-Date", signatureKey.getDateStamp())//getHmacSHA256(signatureKey.getDayDate(), "OPENSDS" + signatureKey.getSecretAccessKey()))
+                    .build();
+
+            System.out.println(request.headers());
+            //System.out.println(signatureKey);
+            Response response = client.newCall(request).execute();
+            System.out.println("Lifecycle response same rule"+response.body().string());
+            code = response.code();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return code;
+    }
 }

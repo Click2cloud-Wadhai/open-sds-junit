@@ -5,7 +5,28 @@ public class AddLifecycleInputHolder {
 
     String xmlCreateLifecycleSameRule;
 
+    String xmlCreateLifecycleWithoutName;
+
     String xmlCreateLifecycleExtendedDays;
+
+    String xmlCreateLifecycleLessDays;
+
+
+    public String getXmlCreateLifecycleLessDays() {
+        return xmlCreateLifecycleLessDays;
+    }
+
+    public void setXmlCreateLifecycleLessDays(String xmlCreateLifecycleLessDays) {
+        this.xmlCreateLifecycleLessDays = xmlCreateLifecycleLessDays;
+    }
+
+    public String getXmlCreateLifecycleWithoutName() {
+        return xmlCreateLifecycleWithoutName;
+    }
+
+    public void setXmlCreateLifecycleWithoutName(String xmlCreateLifecycleWithoutName) {
+        this.xmlCreateLifecycleWithoutName = xmlCreateLifecycleWithoutName;
+    }
 
     public String getXmlCreateLifecycleExtendedDays() {
         return xmlCreateLifecycleExtendedDays;
