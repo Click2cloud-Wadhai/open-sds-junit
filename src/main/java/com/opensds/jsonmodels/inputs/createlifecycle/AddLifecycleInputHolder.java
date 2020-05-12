@@ -7,9 +7,29 @@ public class AddLifecycleInputHolder {
 
     String xmlCreateLifecycleWithoutName;
 
+    String xmlCreateLifecycleWithoutExpiration;
+
+    String xmlCreateLifecycleWithoutExpirationTransition;
+
     String xmlCreateLifecycleExtendedDays;
 
     String xmlCreateLifecycleLessDays;
+
+    public String getXmlCreateLifecycleWithoutExpirationTransition() {
+        return xmlCreateLifecycleWithoutExpirationTransition;
+    }
+
+    public void setXmlCreateLifecycleWithoutExpirationTransition(String xmlCreateLifecycleWithoutExpirationTransition) {
+        this.xmlCreateLifecycleWithoutExpirationTransition = xmlCreateLifecycleWithoutExpirationTransition;
+    }
+
+    public String getXmlCreateLifecycleWithoutExpiration() {
+        return xmlCreateLifecycleWithoutExpiration;
+    }
+
+    public void setXmlCreateLifecycleWithoutExpiration(String xmlCreateLifecycleWithoutExpiration) {
+        this.xmlCreateLifecycleWithoutExpiration = xmlCreateLifecycleWithoutExpiration;
+    }
 
 
     public String getXmlCreateLifecycleLessDays() {

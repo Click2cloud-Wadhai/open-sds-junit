@@ -403,6 +403,116 @@ public class LifecycleTests {
 
     @Test
     @Order(6)
+    @DisplayName("Test creating Lifecycle rule without Expiration")
+    public void testCreateLifecycleWithoutExpiration() {
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            Gson gson = new Gson();
+            // add the backend specified in each file
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+
+                AddBackendInputHolder inputHolder = gson.fromJson(content, AddBackendInputHolder.class);
+                int code = getHttpHandler().addBackend(null,
+                        "adminTenantId",
+                        inputHolder);
+                assertEquals(code, 200);
+
+                // backend added, now create buckets
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
+                        getAuthTokenHolder().getToken().getProject().getId());*/
+                // create the bucket specified in each file
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+
+                    CreateBucketFileInput bfi = gson.fromJson(bucketContent, CreateBucketFileInput.class);
+
+                    // filename format is "bucket_<bucketname>.json", get the bucket name here
+                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
+                    System.out.println(bName);
+                    //Lifecycle creation started
+
+                    List<File> listOfLifeCycleInputs =
+                            Utils.listFilesMatchingBeginsWithPatternInPath("lifecycle",
+                                    Constant.CREATE_LIFECYCLE_PATH);
+                    String createLifeCycleContent = Utils.readFileContentsAsString(listOfLifeCycleInputs.get(0));
+                    assertNotNull(createLifeCycleContent);
+                    AddLifecycleInputHolder lifecycleInputHolder = gson.fromJson(createLifeCycleContent, AddLifecycleInputHolder.class);
+                    int codeResponse = getHttpHandler().createLifecycleWithoutExpiration(null,
+                            "adminTenantId",lifecycleInputHolder,
+                            bName);
+                    assertEquals(codeResponse, 200);
+                }
+
+            }
+        }
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("Test creating Lifecycle rule without Expiration and transition")
+    public void testCreateLifecycleWithoutExpirationTransition() {
+        for (Type t : getTypesHolder().getTypes()) {
+            List<File> listOfIInputsForType =
+                    Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
+                            Constant.CREATE_BUCKET_PATH);
+            Gson gson = new Gson();
+            // add the backend specified in each file
+            for (File file : listOfIInputsForType) {
+                String content = Utils.readFileContentsAsString(file);
+                assertNotNull(content);
+
+                AddBackendInputHolder inputHolder = gson.fromJson(content, AddBackendInputHolder.class);
+                int code = getHttpHandler().addBackend(null,
+                        "adminTenantId",
+                        inputHolder);
+                assertEquals(code, 200);
+
+                // backend added, now create buckets
+                List<File> listOfIBucketInputs =
+                        Utils.listFilesMatchingBeginsWithPatternInPath("bucket",
+                                Constant.CREATE_BUCKET_PATH);
+                /*SignatureKey signatureKey = getHttpHandler().getAkSkList(getAuthTokenHolder().getResponseHeaderSubjectToken(),
+                        getAuthTokenHolder().getToken().getProject().getId());*/
+                // create the bucket specified in each file
+                for (File bucketFile : listOfIBucketInputs) {
+                    String bucketContent = Utils.readFileContentsAsString(bucketFile);
+                    assertNotNull(bucketContent);
+
+                    CreateBucketFileInput bfi = gson.fromJson(bucketContent, CreateBucketFileInput.class);
+
+                    // filename format is "bucket_<bucketname>.json", get the bucket name here
+                    String bName = bucketFile.getName().substring(bucketFile.getName().indexOf("_") + 1,
+                            bucketFile.getName().indexOf("."));
+                    System.out.println(bName);
+                    //Lifecycle creation started
+
+                    List<File> listOfLifeCycleInputs =
+                            Utils.listFilesMatchingBeginsWithPatternInPath("lifecycle",
+                                    Constant.CREATE_LIFECYCLE_PATH);
+                    String createLifeCycleContent = Utils.readFileContentsAsString(listOfLifeCycleInputs.get(0));
+                    assertNotNull(createLifeCycleContent);
+                    AddLifecycleInputHolder lifecycleInputHolder = gson.fromJson(createLifeCycleContent, AddLifecycleInputHolder.class);
+                    int codeResponse = getHttpHandler().createLifecycleWithoutExpirationTransition(null,
+                            "adminTenantId",lifecycleInputHolder,
+                            bName);
+                    assertEquals(codeResponse, 200);
+                }
+
+            }
+        }
+    }
+
+    @Test
+    @Order(8)
     @DisplayName("Test creating Lifecycle rule without name")
     public void testCreateLifecycleWithoutName() {
         for (Type t : getTypesHolder().getTypes()) {
@@ -457,9 +567,9 @@ public class LifecycleTests {
     }
 
     @Test
-    @Order(7)
+    @Order(9)
     @DisplayName("Listing Lifecycle")
-    public void     testDisplayLifecycle() {
+    public void testDisplayLifecycle() {
         for (Type t : getTypesHolder().getTypes()) {
             List<File> listOfIInputsForType =
                     Utils.listFilesMatchingBeginsWithPatternInPath(t.getName(),
@@ -506,7 +616,7 @@ public class LifecycleTests {
     }
 
     @Test
-    @Order(8)
+    @Order(10)
     @DisplayName("Listing Lifecycle with wrong bucket name")
     public void testDisplayLifecycleWithWrongBucket() {
         int codeResponse = getHttpHandler().displayLifecycle(null,
@@ -516,7 +626,7 @@ public class LifecycleTests {
     }
 
     @Test
-    @Order(9)
+    @Order(11)
     @DisplayName("Test deleting lifecycle")
     public void testDeleteLifecycle() throws IOException {
         for (Type t : getTypesHolder().getTypes()) {
@@ -554,7 +664,7 @@ public class LifecycleTests {
     }
 
     @Test
-    @Order(10)
+    @Order(12)
     @DisplayName("Test deleting lifecycle with non existing bucket name")
     public void testDeleteLifecycleNonExist() throws IOException {
                     int code = getHttpHandler().deleteLifecycle(null,
@@ -564,7 +674,7 @@ public class LifecycleTests {
     }
 
     @Test
-    @Order(11)
+    @Order(13)
     @DisplayName("Test deleting lifecycle on already deleted lifecycle")
     public void testDeleteLifecycleAlreadyDeleted() throws IOException {
         for (Type t : getTypesHolder().getTypes()) {
@@ -602,7 +712,7 @@ public class LifecycleTests {
     }
 
     @Test
-    @Order(12)
+    @Order(14)
     @DisplayName("Test deleting lifecycle without rule")
     public void testDeleteLifecycleWithoutrule() throws IOException {
         for (Type t : getTypesHolder().getTypes()) {
@@ -641,7 +751,7 @@ public class LifecycleTests {
     }
 
     @Test
-    @Order(13)
+    @Order(15)
     @DisplayName("Test deleting lifecycle with wrong name of the rule")
     public void testDeleteLifecycleWithWrongName() throws IOException {
         for (Type t : getTypesHolder().getTypes()) {
@@ -680,7 +790,7 @@ public class LifecycleTests {
     }
 
     @Test
-    @Order(14)
+    @Order(16)
     @DisplayName("Test deleting lifecycle with no rule parameter")
     public void testDeleteLifecycleWithNoRule() throws IOException {
         for (Type t : getTypesHolder().getTypes()) {
@@ -719,7 +829,7 @@ public class LifecycleTests {
     }
 
     @Test
-    @Order(15)
+    @Order(17)
     @DisplayName("Test deleting bucket and object")
     public void testDeleteBucketAndObject() throws IOException {
         // load input files for each type and create the backend
@@ -780,7 +890,7 @@ public class LifecycleTests {
     }
 
     @Test
-    @Order(16)
+    @Order(18)
     @DisplayName("Test deleting backend")
     public void testDeleteBackend() throws IOException {
         // load input files for each type and create the backend
