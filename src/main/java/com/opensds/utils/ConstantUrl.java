@@ -151,4 +151,80 @@ public class ConstantUrl {
         return URL +"/v1/s3/"+bucketName+"/?lifecycle";
     }
 
+
+    /**
+     * Create plan.
+     *
+     * @param adminTenantId admin tenant id
+     */
+    public String getCreatePlansUrl(String adminTenantId) {
+        return URL +"/v1/"+adminTenantId+"/plans";
+    }
+
+    /**
+     * Run plan.
+     *
+     * @param adminTenantId admin tenant id
+     * @param id id
+     */
+    public String getRunPlanUrl(String adminTenantId, String id) {
+        return URL +"/v1/"+adminTenantId+"/plans/"+id+"/run";
+    }
+
+    /**
+     * Get job
+     *
+     * @param adminTenantId admin tenant id
+     * @param jobId job id
+     */
+    public String getJobUrl(String adminTenantId, String jobId) {
+        return URL +"/v1/"+adminTenantId+"/jobs/"+jobId;
+    }
+
+    /**
+     * Get list of plans
+     *
+     * @param adminTenantId admin tenant id
+     */
+    public String getPlansListUrl(String adminTenantId) {
+        return URL +"/v1/"+adminTenantId+"/plans";
+    }
+
+    /**
+     * Delete plans
+     *
+     * @param adminTenantId admin tenant id
+     * @param id id
+     */
+    public String getDeletePlansUrl(String adminTenantId, String id) {
+        return URL +"/v1/"+adminTenantId+"/plans/"+id;
+    }
+
+    /**
+     * Get Job List
+     *
+     * @param adminTenantId admin tenant id
+     */
+    public String getListJobUrl(String adminTenantId) {
+        return URL +"/v1/"+adminTenantId+"/jobs";
+    }
+
+    /**
+     * Get policies.
+     *
+     * @param adminTenantId admin tenant id
+     */
+    public String getPoliciesUrl(String adminTenantId) {
+        return URL +"/v1/"+adminTenantId+"/policies";
+    }
+
+    /**
+     * Get Schedule Migration Status.
+     *
+     * @param adminTenantId admin tenant id
+     * @param planeName plan name
+     */
+    public String getScheduleMigStatusUrl(String adminTenantId, String planeName) {
+        return URL +"/v1/"+adminTenantId+"/jobs?planName="+planeName;
+    }
 }

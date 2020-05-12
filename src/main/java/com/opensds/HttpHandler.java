@@ -756,10 +756,6 @@ public class HttpHandler {
                     .build();
             Response response  = client.newCall(request).execute();
             code = response.code();
-
-            Response listBucketResponse = getBuckets(x_auth_token, projId);
-            boolean bucketFound = doesListBucketResponseContainBucketByName(listBucketResponse.body().string(), bucketName);
-            assertFalse(bucketFound);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -813,10 +809,13 @@ public class HttpHandler {
                     .build();
             Response response = client.newCall(request).execute();
             code = response.code();
-            BufferedSink sink = Okio.buffer(Okio.sink(new File(Constant.DOWNLOAD_FILES_PATH, downloadFileName)));
-            sink.writeAll(response.body().source());
-            sink.close();
-            response.body().close();
+            if (code == 200) {
+                BufferedSink sink = Okio.buffer(Okio.sink(new File(Constant.DOWNLOAD_FILES_PATH, downloadFileName)));
+                sink.writeAll(response.body().source());
+                sink.close();
+                response.body().close();
+            }
+            System.out.println(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1247,5 +1246,138 @@ public class HttpHandler {
             e.printStackTrace();
         }
         return code;
+    }
+
+
+    public Response createPlans(String x_auth_token, String requestBody, String projId) {
+        Response response = null;
+        try {
+            MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+            String url = ConstantUrl.getInstance().getCreatePlansUrl(projId);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(RequestBody.create(requestBody, mediaType))
+                    .addHeader("Content-Type","application/json")
+                    .build();
+            response = client.newCall(request).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
+    public Response runPlans(String x_auth_token, String id, String projId) {
+        Response response = null;
+        try {
+            MediaType mediaType = MediaType.parse("application/json");
+            String url = ConstantUrl.getInstance().getRunPlanUrl(projId, id);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(RequestBody.create("", mediaType))
+                    .build();
+            response = client.newCall(request).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
+    public Response getJob(String x_auth_token, String jobId, String projId) {
+        Response response = null;
+        try {
+            String url = ConstantUrl.getInstance().getJobUrl(projId, jobId);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .addHeader("Content-Type","application/json")
+                    .build();
+            response = client.newCall(request).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
+    public Response getPlansList(String x_auth_token, String projId) {
+        Response response = null;
+        try {
+            String url = ConstantUrl.getInstance().getPlansListUrl(projId);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .addHeader("Content-Type","application/json")
+                    .build();
+            response = client.newCall(request).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
+    public int deletePlan(String x_auth_token, String projId, String id) {
+        int code = -1;
+        try {
+            String url = ConstantUrl.getInstance().getDeletePlansUrl(projId, id);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .delete()
+                    .addHeader("Content-Type", "application/json")
+                    .build();
+            Response response  = client.newCall(request).execute();
+            code = response.code();
+            System.out.println(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return code;
+    }
+
+    public Response getJobsList(String x_auth_token, String projId) {
+        Response response = null;
+        try {
+            String url = ConstantUrl.getInstance().getListJobUrl(projId);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .addHeader("Content-Type","application/json")
+                    .build();
+            response = client.newCall(request).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
+    public Response createPlanPolicies(String x_auth_token, String requestBody, String projId) {
+        Response response = null;
+        try {
+            MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+            String url = ConstantUrl.getInstance().getPoliciesUrl(projId);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(RequestBody.create(requestBody, mediaType))
+                    .addHeader("Content-Type","application/json")
+                    .build();
+            response = client.newCall(request).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
+    public Response scheduleMigStatus(String x_auth_token, String projId, String planeName) {
+        Response response = null;
+        try {
+            String url = ConstantUrl.getInstance().getScheduleMigStatusUrl(projId, planeName);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .addHeader("Content-Type","application/json")
+                    .build();
+            response = client.newCall(request).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
     }
 }
