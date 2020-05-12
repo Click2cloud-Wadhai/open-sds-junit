@@ -135,6 +135,23 @@ public class ConstantUrl {
         return URL +"/v1/s3/"+bucketName+"/?DefaultEncryption";
     }
 
+    public String getCreateLifeCycleUrl(String bucketName) {
+        return URL +"/v1/s3/"+bucketName+"/?lifecycle";
+    }
+
+    public String displayCreateLifeCycleUrl(String bucketName) {
+        return URL +"/v1/s3/"+bucketName+"/?lifecycle";
+    }
+
+    public String getDeletelifecycleUrl(String bucketName, String ruleName) {
+        return URL +"/v1/s3/"+bucketName+"/?lifecycle&ruleID="+ruleName;
+    }
+
+    public String getDeletelifecycleUrlWithNoRule(String bucketName) {
+        return URL +"/v1/s3/"+bucketName+"/?lifecycle";
+    }
+
+
     /**
      * Create plan.
      *
