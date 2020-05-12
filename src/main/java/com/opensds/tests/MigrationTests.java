@@ -939,7 +939,7 @@ public class MigrationTests {
         assertEquals("Schedule Mig Status failed:non exist plan name: Response code not matched: ", codeGetJob, 404);
     }
 
-    @Test
+   // @Test
     @Order(20)
     @DisplayName("Test migration enable encryption on bucket")
     public void testEnableEncryptionOnBucket() throws IOException {
@@ -1001,7 +1001,7 @@ public class MigrationTests {
         }
     }
 
-    @Test
+   // @Test
     @Order(21)
     @DisplayName("Test uploading object in a encryption enable bucket")
     public void testUploadObjectInEncryptionEnableBucket() {
@@ -1054,7 +1054,7 @@ public class MigrationTests {
         }
     }
 
-    @Test
+    //@Test
     @Order(22)
     @DisplayName("Test creating plan with immediately(Encryption enable bucket)")
     public void testCreatePlanUsingEncryptionEnabledBucket() throws IOException {
@@ -1104,7 +1104,7 @@ public class MigrationTests {
         System.out.println(status);
     }
 
-    @Test
+    //@Test
     @Order(23)
     @DisplayName("Test after migration download image from source and destination encryption enable bucket")
     public void testSourceDesEncyEnableBucketDownloadObject() {
@@ -1144,7 +1144,7 @@ public class MigrationTests {
         }
     }
 
-    @Test
+    //@Test
     @Order(24)
     @DisplayName("Test migration enable encryption on source bucket")
     public void testEnableEncryptionOnSourceBucket() throws IOException {
@@ -1205,7 +1205,7 @@ public class MigrationTests {
         }
     }
 
-    @Test
+    //@Test
     @Order(25)
     @DisplayName("Test uploading object in a encryption enable source bucket")
     public void testUploadObjectInEncryptionEnableSourceBucket() {
@@ -1258,7 +1258,7 @@ public class MigrationTests {
         }
     }
 
-    @Test
+    //@Test
     @Order(26)
     @DisplayName("Test creating plan with immediately(Encryption enable source bucket Destination bucket is not)")
     public void testCreatePlanUsingEncryptionEnabledSourceBucket() throws IOException {
@@ -1308,7 +1308,7 @@ public class MigrationTests {
         System.out.println(status);
     }
 
-    @Test
+    //@Test
     @Order(27)
     @DisplayName("Test after migration download image from enable encryption on source bucket and destination is not")
     public void testSourceEncyEnableBucketDesIsNotDownloadObject() {
@@ -1348,7 +1348,7 @@ public class MigrationTests {
         }
     }
 
-    @Test
+    //@Test
     @Order(28)
     @DisplayName("Test migration enable encryption on destination bucket")
     public void testEnableEncryptionOnDestinationBucket() throws IOException {
@@ -1417,7 +1417,7 @@ public class MigrationTests {
         }
     }
 
-    @Test
+    //@Test
     @Order(29)
     @DisplayName("Test uploading object in a encryption enable destination bucket")
     public void testUploadObjectInEncryptionEnableDestinationBucket() {
@@ -1470,7 +1470,7 @@ public class MigrationTests {
         }
     }
 
-    @Test
+    //@Test
     @Order(30)
     @DisplayName("Test creating plan with immediately(Encryption enable Destination bucket source bucket is not)")
     public void testCreatePlanUsingEncryptionEnabledDestinationBucket() throws IOException {
@@ -1520,7 +1520,7 @@ public class MigrationTests {
         System.out.println(status);
     }
 
-    @Test
+    //@Test
     @Order(31)
     @DisplayName("Test after migration download image from enable encryption on destination bucket and source is not")
     public void testDestinationEncyEnableBucketSourceIsNotDownloadObject() {

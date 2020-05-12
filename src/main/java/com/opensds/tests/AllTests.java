@@ -258,7 +258,7 @@ class AllTests {
         assertFalse(bucketFound);
 
         System.out.println("Verifying response code: In input (Backend name) with not valid value but bucket name is valid");
-        File file = new File(Constant.EMPTY_FIELD_PATH, "bucket_b1324.json");
+        File file = new File(Constant.EMPTY_FIELD_PATH, "bucket_b1394.json");
         String content = Utils.readFileContentsAsString(file);
         assertNotNull(content);
         String bName = file.getName().substring(bucketFile.getName().indexOf("_") + 1,
@@ -877,7 +877,7 @@ class AllTests {
         }
     }
 
-    @Test
+    //@Test
     @Order(21)
     @DisplayName("Test enable encryption on bucket")
     public void testEnableEncryptionOnBucket() throws IOException {
@@ -944,7 +944,7 @@ class AllTests {
         }
     }
 
-    @Test
+    //@Test
     @Order(22)
     @DisplayName("Test re-enable encryption on bucket")
     public void testReEnableEncryptionOnBucket() {
@@ -985,14 +985,14 @@ class AllTests {
         }
     }
 
-    @Test
+    //@Test
     @Order(23)
     @DisplayName("Test upload object in  encryption enabled bucket")
     public void testUploadObjectInEnableEncryptionBucket() {
         testUploadObject();
     }
 
-    @Test
+    //@Test
     @Order(24)
     @DisplayName("Test download object from  encryption enabled bucket")
     public void testDownloadObjectFromEnableEncryptionBucket() {
@@ -1042,7 +1042,7 @@ class AllTests {
         }
     }
 
-    @Test
+    //@Test
     @Order(25)
     @DisplayName("Test disable encryption on bucket")
     public void testDisableEncryptionOnBucket() throws IOException {
@@ -1097,14 +1097,14 @@ class AllTests {
         }
     }
 
-    @Test
+    //@Test
     @Order(26)
     @DisplayName("Test deleting bucket and object after encryption process")
     public void testDeleteBucketAndObjectEncryptionBucket() throws IOException {
         testDeleteBucketAndObject();
     }
 
-    @Test
+    //@Test
     @Order(27)
     @DisplayName("Test deleting backend after encryption process")
     public void testDeleteBackendAfterEncryptionProcess() throws IOException {
