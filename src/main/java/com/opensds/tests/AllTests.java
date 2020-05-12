@@ -267,7 +267,7 @@ class AllTests {
         CreateBucketFileInput input = gson.fromJson(content, CreateBucketFileInput.class);
         int code = getHttpHandler().createBucket(null,
                 input, bName, null, "adminTenantId");//signatureKey);
-        assertEquals("Backend does not exist:Response code not matched: "
+        assertEquals("Bucket with empty name:Response code not matched: "
                 , code, 404);
     }
 
